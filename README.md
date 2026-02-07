@@ -25,31 +25,37 @@ IntentFlow detects visitor intent from context signals (UTM parameters, referrer
 
 ## 🚀 Quick Start (< 5 Minutes)
 
-### 1. Add the script tag
+### 1. Paste one script tag
 
 ```html
-<!-- Add to your website's <head> or before </body> -->
-<script src="https://cdn.example.com/intentflow/sdk/engine/intent-detector.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/engine/decision-engine.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/engine/event-tracker.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/ui/injector.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/ui/debug-overlay.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/ui/preview-mode.js"></script>
-<script src="https://cdn.example.com/intentflow/sdk/intentflow.js"></script>
+<!-- Single script tag — that's all you need -->
+<script src="intentflow.bundle.js"></script>
 ```
 
 ### 2. Mark your hero section
 
 ```html
-<section data-intentflow-hero data-intentflow-assets="path/to/">
-  <!-- Your default hero content (fallback) -->
+<section data-intentflow-hero data-intentflow-assets="assets/">
+  <!-- Your default hero content (shown as fallback) -->
   <h1>Welcome to our store</h1>
+  <a href="#shop">Shop Now</a>
 </section>
 ```
 
-### 3. That's it! ✅
+### 3. Done ✅
 
-IntentFlow auto-initializes, detects intent, and swaps content.
+IntentFlow auto-initializes on page load, detects visitor intent from context signals, and swaps in the optimal hero variant with a smooth transition. If anything fails, your default content is preserved.
+
+> **Modular install** — For advanced setups, load individual modules instead:
+> ```html
+> <script src="sdk/engine/intent-detector.js"></script>
+> <script src="sdk/engine/decision-engine.js"></script>
+> <script src="sdk/engine/event-tracker.js"></script>
+> <script src="sdk/ui/injector.js"></script>
+> <script src="sdk/ui/debug-overlay.js"></script>
+> <script src="sdk/ui/preview-mode.js"></script>
+> <script src="sdk/intentflow.js"></script>
+> ```
 
 ---
 
@@ -167,7 +173,8 @@ intentflow/
 │   ├── one-page-report.md       # 1-page structured report
 │   └── project-summary.txt      # 150-300 word pitch
 ├── sdk/                         # Core SDK (the product)
-│   ├── intentflow.js            # Main entry point
+│   ├── intentflow.bundle.js     # ⚡ Single-file bundle (all-in-one)
+│   ├── intentflow.js            # Main entry point (modular)
 │   ├── engine/
 │   │   ├── intent-detector.js   # Multi-signal intent detection
 │   │   ├── decision-engine.js   # Explainable template selection
