@@ -147,22 +147,66 @@
     }
 
     /**
-     * Fallback assets (embedded for reliability)
+     * Fallback assets (embedded for reliability — full registry for file:// protocol)
      */
     function getFallbackAssets() {
         return {
             images: {
-                'hero-default': { src: 'assets/hero-default.png', alt: 'Premium monitor display', intents: ['DEFAULT'] }
+                'hero-gaming': { src: 'assets/hero-gaming.png', alt: 'Gaming monitor setup with RGB lighting', intents: ['BUY_NOW', 'USE_CASE'] },
+                'hero-office': { src: 'assets/hero-office.png', alt: 'Professional office monitor workspace', intents: ['USE_CASE'] },
+                'hero-design': { src: 'assets/hero-design.png', alt: 'Creative design studio with color-accurate monitor', intents: ['USE_CASE'] },
+                'hero-budget': { src: 'assets/hero-budget.png', alt: 'Affordable monitors at great prices', intents: ['BUDGET'] },
+                'hero-comparison': { src: 'assets/hero-comparison.png', alt: 'Two monitors side by side for comparison', intents: ['COMPARE'] },
+                'hero-default': { src: 'assets/hero-default.png', alt: 'Premium monitor on elegant desk', intents: ['DEFAULT'] }
             },
-            badges: {},
+            badges: {
+                'free-shipping': { icon: '🚚', label: 'Free Shipping' },
+                'warranty': { icon: '🛡️', label: '3-Year Warranty' },
+                'best-seller': { icon: '⭐', label: 'Best Seller' },
+                'top-rated': { icon: '🏆', label: 'Top Rated' },
+                'price-match': { icon: '💰', label: 'Price Match Guarantee' },
+                'certified-4k': { icon: '✅', label: '4K Certified' }
+            },
             content: {
+                BUY_NOW: {
+                    headline: 'Your Perfect Monitor Awaits',
+                    subheadline: 'Premium 4K displays with lightning-fast response times. Free shipping on all orders.',
+                    cta_text: 'Shop Now →',
+                    cta_link: '#shop',
+                    image: 'hero-gaming',
+                    badges: ['free-shipping', 'warranty', 'best-seller']
+                },
+                COMPARE: {
+                    headline: 'Find Your Perfect Match',
+                    subheadline: 'Side-by-side specs, real benchmarks, and honest reviews to help you choose.',
+                    cta_text: 'Compare Models →',
+                    cta_link: '#compare',
+                    image: 'hero-comparison',
+                    badges: ['top-rated', 'warranty', 'certified-4k']
+                },
+                USE_CASE: {
+                    headline: 'Built for What You Do',
+                    subheadline: 'Whether you game, design, or code — we have the perfect monitor for your workflow.',
+                    cta_text: 'Explore by Use Case →',
+                    cta_link: '#use-cases',
+                    image: 'hero-design',
+                    badges: ['top-rated', 'certified-4k', 'warranty']
+                },
+                BUDGET: {
+                    headline: 'Premium Quality, Smart Prices',
+                    subheadline: 'High-performance monitors starting at $149. Same quality, better value.',
+                    cta_text: 'View Deals →',
+                    cta_link: '#deals',
+                    image: 'hero-budget',
+                    badges: ['price-match', 'free-shipping', 'warranty']
+                },
                 DEFAULT: {
                     headline: 'Monitors Reimagined',
-                    subheadline: 'Discover the next generation of displays.',
+                    subheadline: 'Discover the next generation of displays. Stunning clarity meets unmatched performance.',
                     cta_text: 'Explore Collection →',
                     cta_link: '#collection',
                     image: 'hero-default',
-                    badges: []
+                    badges: ['best-seller', 'free-shipping', 'warranty']
                 }
             }
         };
