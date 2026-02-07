@@ -34,6 +34,9 @@
     var currentSessionIntent = null;
     var observedActions = [];
     var scrollTracker = { lastY: 0, lastTime: 0, velocities: [] };
+    var personaLocked = false;
+    var personaLockTimer = null;
+    var PERSONA_LOCK_DURATION_MS = 10000; // Lock for 10s after explicit persona selection
 
     /**
      * Initialize the context observer
@@ -234,9 +237,30 @@
     }
 
     /**
+     * Lock the observer after an explicit persona selection.
+     * Resets all behavior scores and prevents re-personalization for a set duration.
+     */
+    function lockPersona() {
+        personaLocked = true;
+        // Reset all behavior scores so stale signals don't fire after unlock
+        for (var key in behaviorScores) {
+            behaviorScores[key] = 0;
+        }
+        clearTimeout(personaLockTimer);
+        personaLockTimer = setTimeout(function () {
+            personaLocked = false;
+            logAction('persona_unlocked', 'Context observer re-enabled after explicit selection cooldown');
+        }, PERSONA_LOCK_DURATION_MS);
+        logAction('persona_locked', 'Context observer paused — explicit persona selection takes priority');
+    }
+
+    /**
      * Check if accumulated behavior signals warrant re-personalization
      */
     function checkForRePersonalization() {
+        // Never override an explicit persona selection
+        if (personaLocked) return;
+
         var now = Date.now();
 
         // Respect cooldown
@@ -321,7 +345,9 @@
     global.IntentFlow = global.IntentFlow || {};
     global.IntentFlow.ContextObserver = {
         init: init,
+        lockPersona: lockPersona,
         isEnabled: function () { return isEnabled; },
+        isLocked: function () { return personaLocked; },
         getReport: getReport,
         getBehaviorScores: function () { return Object.assign({}, behaviorScores); },
         getActions: function () { return observedActions.slice(); }

@@ -37,6 +37,11 @@
                 var previousPersona = currentPersona;
                 currentPersona = persona;
 
+                // Lock context observer so behavioral signals don't override this explicit choice
+                if (window.IntentFlow && window.IntentFlow.ContextObserver && window.IntentFlow.ContextObserver.lockPersona) {
+                    window.IntentFlow.ContextObserver.lockPersona();
+                }
+
                 // Trigger IntentFlow personalization with this persona
                 if (window.IntentFlow && window.IntentFlow.personalize) {
                     window.IntentFlow.personalize({ intent: persona });
