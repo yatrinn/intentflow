@@ -1,0 +1,27 @@
+{
+    "name": "intentflow",
+    "version": "1.0.0",
+    "description": "IntentFlow — Plug-and-play AI personalization widget for any website. Detects visitor intent, selects optimal content variants, and injects personalized hero experiences in real-time.",
+    "author": "Yannik Trinn",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yatrinn/intentflow"
+    },
+    "keywords": [
+        "personalization",
+        "ai",
+        "website",
+        "shopify",
+        "e-commerce",
+        "intent-detection",
+        "widget",
+        "plug-and-play",
+        "hero",
+        "ab-testing"
+    ],
+    "main": "sdk/intentflow.js",
+    "files": [
+        "sdk/"
+    ]
+}

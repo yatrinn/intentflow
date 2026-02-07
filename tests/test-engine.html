@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntentFlow — Engine Test Harness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0a0a0f;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #a5b4fc;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 20px 0 10px;
+            color: #818cf8;
+        }
+
+        .test-group {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #16161f;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+        }
+
+        .test-case {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .test-case:last-child {
+            border-bottom: none;
+        }
+
+        .test-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .test-status--pass {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .test-status--fail {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .test-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .test-detail {
+            font-size: 12px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 16px;
+            background: #1e1b4b;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .summary--pass {
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .summary--fail {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        pre {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            overflow-x: auto;
+            margin-top: 8px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>⚡ IntentFlow — Engine Test Harness</h1>
+    <div id="test-results"></div>
+    <div id="test-summary"></div>
+
+    <!-- Load SDK modules -->
+    <script src="../sdk/engine/intent-detector.js"></script>
+    <script src="../sdk/engine/decision-engine.js"></script>
+    <script src="../sdk/engine/event-tracker.js"></script>
+
+    <script>
+        (function () {
+            var results = [];
+            var container = document.getElementById('test-results');
+
+            function assert(name, condition, detail) {
+                results.push({ name: name, pass: condition, detail: detail || '' });
+            }
+
+            function runTests() {
+                // ── Test Group 1: Intent Detector ──
+                var group1 = [];
+
+                // Test: Module exists
+                assert('IntentDetector module loaded',
+                    window.IntentFlow && window.IntentFlow.IntentDetector,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.IntentDetector));
+
+                // Test: INTENTS enum
+                var INTENTS = window.IntentFlow.IntentDetector.INTENTS;
+                assert('INTENTS enum has BUY_NOW', INTENTS && INTENTS.BUY_NOW === 'BUY_NOW');
+                assert('INTENTS enum has COMPARE', INTENTS && INTENTS.COMPARE === 'COMPARE');
+                assert('INTENTS enum has USE_CASE', INTENTS && INTENTS.USE_CASE === 'USE_CASE');
+                assert('INTENTS enum has BUDGET', INTENTS && INTENTS.BUDGET === 'BUDGET');
+                assert('INTENTS enum has DEFAULT', INTENTS && INTENTS.DEFAULT === 'DEFAULT');
+
+                // Test: detect() returns valid structure
+                var detection = window.IntentFlow.IntentDetector.detect();
+                assert('detect() returns intent', detection && typeof detection.intent === 'string');
+                assert('detect() returns confidence', detection && typeof detection.confidence === 'number');
+                assert('detect() returns signals array', detection && Array.isArray(detection.signals));
+                assert('detect() returns scores object', detection && typeof detection.scores === 'object');
+                assert('detect() returns timestamp', detection && typeof detection.timestamp === 'string');
+
+                // Test: parseQueryParams
+                var params = window.IntentFlow.IntentDetector.parseQueryParams();
+                assert('parseQueryParams() returns object', typeof params === 'object');
+
+                // ── Test Group 2: Decision Engine ──
+                assert('DecisionEngine module loaded',
+                    window.IntentFlow && window.IntentFlow.DecisionEngine,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.DecisionEngine));
+
+                // Test: decide() with mock intent result
+                var mockResult = {
+                    intent: 'BUY_NOW',
+                    confidence: 0.9,
+                    signals: [{ type: 'test', key: 'test', value: 'test', detectedIntent: 'BUY_NOW', weight: 1.0 }],
+                    scores: { BUY_NOW: 1.0, COMPARE: 0, USE_CASE: 0, BUDGET: 0, DEFAULT: 0 }
+                };
+                var decision = window.IntentFlow.DecisionEngine.decide(mockResult);
+                assert('decide() returns intent', decision && decision.intent === 'BUY_NOW');
+                assert('decide() returns template', decision && typeof decision.template === 'string');
+                assert('decide() returns headline', decision && typeof decision.headline === 'string');
+                assert('decide() returns hero_image', decision && typeof decision.hero_image === 'string');
+                assert('decide() returns cta_text', decision && typeof decision.cta_text === 'string');
+                assert('decide() returns reason', decision && typeof decision.reason === 'string' && decision.reason.length > 0);
+                assert('decide() returns signals_used', decision && Array.isArray(decision.signals_used));
+                assert('decide() returns timestamp', decision && typeof decision.timestamp === 'string');
+
+                // Test: decide() with DEFAULT fallback
+                var defaultDecision = window.IntentFlow.DecisionEngine.decide(null);
+                assert('decide(null) returns DEFAULT intent', defaultDecision && defaultDecision.intent === 'DEFAULT');
+                assert('decide(null) has fallback content', defaultDecision && defaultDecision.headline && defaultDecision.headline.length > 0);
+
+                // ── Test Group 3: Event Tracker ──
+                assert('EventTracker module loaded',
+                    window.IntentFlow && window.IntentFlow.EventTracker,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.EventTracker));
+
+                window.IntentFlow.EventTracker.init();
+                assert('EventTracker initialized', window.__intentflow_events && Array.isArray(window.__intentflow_events));
+
+                var event = window.IntentFlow.EventTracker.log('test_event', { test: true });
+                assert('EventTracker.log() returns event', event && event.event === 'test_event');
+                assert('EventTracker.getEvents() returns array', window.IntentFlow.EventTracker.getEvents().length > 0);
+
+                // ── Render Results ──
+                renderResults();
+            }
+
+            function renderResults() {
+                var passed = results.filter(function (r) { return r.pass; }).length;
+                var failed = results.filter(function (r) { return !r.pass; }).length;
+                var total = results.length;
+
+                var html = '<div class="test-group">';
+                for (var i = 0; i < results.length; i++) {
+                    var r = results[i];
+                    html += '<div class="test-case">' +
+                        '<div class="test-status test-status--' + (r.pass ? 'pass' : 'fail') + '">' + (r.pass ? '✓' : '✗') + '</div>' +
+                        '<span class="test-name">' + r.name + '</span>' +
+                        (r.detail ? '<span class="test-detail">' + r.detail + '</span>' : '') +
+                        '</div>';
+                }
+                html += '</div>';
+
+                container.innerHTML = html;
+
+                var summaryEl = document.getElementById('test-summary');
+                var allPassed = failed === 0;
+                summaryEl.innerHTML = '<div class="summary summary--' + (allPassed ? 'pass' : 'fail') + '">' +
+                    (allPassed ? '✅' : '❌') + ' ' + passed + '/' + total + ' tests passed' +
+                    (failed > 0 ? ' (' + failed + ' failed)' : '') +
+                    '</div>';
+            }
+
+            // Run tests after a short delay to ensure modules are loaded
+            setTimeout(runTests, 100);
+        })();
+    </script>
+</body>
+
+</html>

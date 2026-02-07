@@ -1,0 +1,53 @@
+{
+  "templates": {
+    "hero-impact": {
+      "id": "hero-impact",
+      "name": "Impact Hero",
+      "description": "Bold, action-oriented layout with large image and strong CTA. Best for high purchase intent.",
+      "layout": "image-left-text-right",
+      "intents": ["BUY_NOW", "USE_CASE"],
+      "slots": {
+        "image": true,
+        "headline": true,
+        "subheadline": true,
+        "cta_text": true,
+        "cta_link": true,
+        "badges": true
+      },
+      "cssClass": "intentflow-hero--impact"
+    },
+    "hero-comparison": {
+      "id": "hero-comparison",
+      "name": "Comparison Hero",
+      "description": "Split-screen layout with comparison badges. Best for visitors comparing options.",
+      "layout": "split-screen",
+      "intents": ["COMPARE"],
+      "slots": {
+        "image": true,
+        "headline": true,
+        "subheadline": true,
+        "cta_text": true,
+        "cta_link": true,
+        "badges": true
+      },
+      "cssClass": "intentflow-hero--comparison"
+    },
+    "hero-value": {
+      "id": "hero-value",
+      "name": "Value Hero",
+      "description": "Centered, price-focused layout with savings emphasis. Best for budget-conscious visitors.",
+      "layout": "centered-value",
+      "intents": ["BUDGET"],
+      "slots": {
+        "image": true,
+        "headline": true,
+        "subheadline": true,
+        "cta_text": true,
+        "cta_link": true,
+        "badges": true
+      },
+      "cssClass": "intentflow-hero--value"
+    }
+  },
+  "defaultTemplate": "hero-impact"
+}
