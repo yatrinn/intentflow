@@ -710,6 +710,325 @@
 
 })(window);
 /**
+ * IntentFlow — A/B Exploration Module
+ * 
+ * Lightweight A/B testing that randomly assigns visitors to one of two
+ * content variants for the same intent, tracks engagement (CTA clicks),
+ * and surfaces the winner after a configurable sample size.
+ * 
+ * How it works:
+ *   1. For each intent, two candidate content variants are defined
+ *   2. New visitors are randomly assigned to variant A or B (50/50)
+ *   3. Assignment is stored in localStorage for session persistence
+ *   4. CTA clicks are tracked per variant
+ *   5. After N impressions, the winning variant is locked
+ * 
+ * Activate via URL: ?intentflow_ab=true
+ * Or programmatically: IntentFlow.ABExplorer.enable()
+ * 
+ * @module ABExplorer
+ * @version 1.0.0
+ */
+
+(function (global) {
+    'use strict';
+
+    // ── Configuration ──
+    var STORAGE_KEY = 'intentflow_ab';
+    var MIN_SAMPLE_SIZE = 10; // Minimum impressions before declaring a winner
+    var AB_ENABLED_KEY = 'intentflow_ab_enabled';
+
+    /**
+     * A/B variant definitions — alternate content for each intent.
+     * Variant A = the default from assets.json
+     * Variant B = the alternate defined here
+     */
+    var variantB = {
+        BUY_NOW: {
+            headline: 'Ready to Upgrade Your Setup?',
+            subheadline: 'Top-rated 4K monitors with free next-day delivery. Limited stock available.',
+            cta_text: 'Buy Now — Free Shipping →',
+            cta_link: '#checkout'
+        },
+        COMPARE: {
+            headline: 'See How They Stack Up',
+            subheadline: 'Interactive comparison charts, benchmark scores, and expert verdicts side by side.',
+            cta_text: 'Start Comparing →',
+            cta_link: '#compare-tool'
+        },
+        USE_CASE: {
+            headline: 'The Right Monitor for Every Task',
+            subheadline: 'Gaming, design, coding, or streaming — find the display built for your craft.',
+            cta_text: 'Find Your Match →',
+            cta_link: '#quiz'
+        },
+        BUDGET: {
+            headline: 'Great Monitors Don\'t Have to Break the Bank',
+            subheadline: 'Curated picks under $200 with 4.5+ star ratings. Quality you can trust.',
+            cta_text: 'See Top Budget Picks →',
+            cta_link: '#budget-picks'
+        },
+        DEFAULT: {
+            headline: 'The Display Revolution Starts Here',
+            subheadline: 'Ultra-sharp, ultra-fast, ultra-reliable. Experience monitors redesigned for 2026.',
+            cta_text: 'Discover the Range →',
+            cta_link: '#range'
+        }
+    };
+
+    /**
+     * Load A/B state from localStorage
+     */
+    function loadState() {
+        try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                return JSON.parse(raw);
+            }
+        } catch (e) {
+            // localStorage not available
+        }
+        return {
+            assignments: {},   // { intent: 'A' | 'B' }
+            impressions: {},   // { 'BUY_NOW_A': 5, 'BUY_NOW_B': 3 }
+            clicks: {},        // { 'BUY_NOW_A': 2, 'BUY_NOW_B': 1 }
+            winners: {}        // { 'BUY_NOW': 'A' } (locked after sample)
+        };
+    }
+
+    /**
+     * Save A/B state to localStorage
+     */
+    function saveState(state) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            // Silently fail if localStorage is unavailable
+        }
+    }
+
+    /**
+     * Assign a variant for a given intent (or return existing assignment)
+     */
+    function assignVariant(intent) {
+        var state = loadState();
+
+        // If there's already a winner, return it
+        if (state.winners[intent]) {
+            return state.winners[intent];
+        }
+
+        // If already assigned, return existing
+        if (state.assignments[intent]) {
+            return state.assignments[intent];
+        }
+
+        // Randomly assign A or B (50/50)
+        var variant = Math.random() < 0.5 ? 'A' : 'B';
+        state.assignments[intent] = variant;
+        saveState(state);
+
+        return variant;
+    }
+
+    /**
+     * Record an impression for a variant
+     */
+    function recordImpression(intent, variant) {
+        var state = loadState();
+        var key = intent + '_' + variant;
+        state.impressions[key] = (state.impressions[key] || 0) + 1;
+        saveState(state);
+
+        // Check if we should declare a winner
+        checkForWinner(intent, state);
+    }
+
+    /**
+     * Record a click for a variant
+     */
+    function recordClick(intent, variant) {
+        var state = loadState();
+        var key = intent + '_' + variant;
+        state.clicks[key] = (state.clicks[key] || 0) + 1;
+        saveState(state);
+    }
+
+    /**
+     * Check if there's enough data to declare a winner
+     */
+    function checkForWinner(intent, state) {
+        if (state.winners[intent]) return; // Already decided
+
+        var keyA = intent + '_A';
+        var keyB = intent + '_B';
+        var impressionsA = state.impressions[keyA] || 0;
+        var impressionsB = state.impressions[keyB] || 0;
+        var totalImpressions = impressionsA + impressionsB;
+
+        if (totalImpressions < MIN_SAMPLE_SIZE) return;
+
+        // Calculate click-through rates
+        var clicksA = state.clicks[keyA] || 0;
+        var clicksB = state.clicks[keyB] || 0;
+        var ctrA = impressionsA > 0 ? clicksA / impressionsA : 0;
+        var ctrB = impressionsB > 0 ? clicksB / impressionsB : 0;
+
+        // Declare winner based on higher CTR
+        var winner = ctrA >= ctrB ? 'A' : 'B';
+        state.winners[intent] = winner;
+        saveState(state);
+
+        console.log(
+            '%c⚡ IntentFlow A/B %c Winner for ' + intent + ': Variant ' + winner +
+            ' (CTR: ' + Math.round((winner === 'A' ? ctrA : ctrB) * 100) + '%)',
+            'background: #7c3aed; color: white; padding: 2px 8px; border-radius: 4px 0 0 4px; font-weight: bold;',
+            'background: #1e1b4b; color: #a5b4fc; padding: 2px 8px; border-radius: 0 4px 4px 0;'
+        );
+
+        // Dispatch event
+        document.dispatchEvent(new CustomEvent('intentflow:ab_winner', {
+            detail: { intent: intent, winner: winner, ctrA: ctrA, ctrB: ctrB, totalImpressions: totalImpressions }
+        }));
+    }
+
+    /**
+     * Apply A/B variant to a decision object (mutates in place)
+     * Returns the variant letter ('A' or 'B')
+     */
+    function applyVariant(decision) {
+        if (!isEnabled()) return 'A';
+
+        var intent = decision.intent;
+        var variant = assignVariant(intent);
+
+        if (variant === 'B' && variantB[intent]) {
+            var alt = variantB[intent];
+            decision.headline = alt.headline;
+            decision.subheadline = alt.subheadline;
+            decision.cta_text = alt.cta_text;
+            decision.cta_link = alt.cta_link;
+            decision._abVariant = 'B';
+            decision.reason += ' [A/B Test: Variant B assigned]';
+        } else {
+            decision._abVariant = 'A';
+            decision.reason += ' [A/B Test: Variant A assigned]';
+        }
+
+        // Record impression
+        recordImpression(intent, variant);
+
+        return variant;
+    }
+
+    /**
+     * Check if A/B mode is enabled
+     */
+    function isEnabled() {
+        // Check URL parameter
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('intentflow_ab') === 'true') return true;
+
+        // Check localStorage flag
+        try {
+            return localStorage.getItem(AB_ENABLED_KEY) === 'true';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /**
+     * Enable A/B mode
+     */
+    function enable() {
+        try {
+            localStorage.setItem(AB_ENABLED_KEY, 'true');
+        } catch (e) { }
+    }
+
+    /**
+     * Disable A/B mode
+     */
+    function disable() {
+        try {
+            localStorage.removeItem(AB_ENABLED_KEY);
+        } catch (e) { }
+    }
+
+    /**
+     * Get the current A/B test report
+     */
+    function getReport() {
+        var state = loadState();
+        var report = {};
+
+        var intents = ['BUY_NOW', 'COMPARE', 'USE_CASE', 'BUDGET', 'DEFAULT'];
+        for (var i = 0; i < intents.length; i++) {
+            var intent = intents[i];
+            var keyA = intent + '_A';
+            var keyB = intent + '_B';
+            var impA = state.impressions[keyA] || 0;
+            var impB = state.impressions[keyB] || 0;
+            var clkA = state.clicks[keyA] || 0;
+            var clkB = state.clicks[keyB] || 0;
+
+            report[intent] = {
+                variantA: {
+                    impressions: impA,
+                    clicks: clkA,
+                    ctr: impA > 0 ? Math.round((clkA / impA) * 100) + '%' : '0%'
+                },
+                variantB: {
+                    impressions: impB,
+                    clicks: clkB,
+                    ctr: impB > 0 ? Math.round((clkB / impB) * 100) + '%' : '0%'
+                },
+                winner: state.winners[intent] || 'pending',
+                totalImpressions: impA + impB,
+                sampleNeeded: MIN_SAMPLE_SIZE
+            };
+        }
+
+        return report;
+    }
+
+    /**
+     * Reset all A/B data (for testing)
+     */
+    function reset() {
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+        } catch (e) { }
+    }
+
+    /**
+     * Initialize — log status
+     */
+    function init() {
+        if (isEnabled()) {
+            console.log(
+                '%c⚡ IntentFlow A/B %c Exploration mode active — testing 2 variants per intent',
+                'background: #7c3aed; color: white; padding: 2px 8px; border-radius: 4px 0 0 4px; font-weight: bold;',
+                'background: #1e1b4b; color: #a5b4fc; padding: 2px 8px; border-radius: 0 4px 4px 0;'
+            );
+        }
+    }
+
+    // ── Export ──
+    global.IntentFlow = global.IntentFlow || {};
+    global.IntentFlow.ABExplorer = {
+        init: init,
+        isEnabled: isEnabled,
+        enable: enable,
+        disable: disable,
+        applyVariant: applyVariant,
+        recordClick: recordClick,
+        getReport: getReport,
+        reset: reset
+    };
+
+})(window);
+/**
  * IntentFlow — DOM Injector Module
  * 
  * Safely injects personalized content into the DOM by finding the
@@ -1314,6 +1633,226 @@
 
 })(window);
 /**
+ * IntentFlow — Multi-Page Support Module
+ * 
+ * Extends IntentFlow beyond the homepage hero to support personalization
+ * across multiple page types. Each page type can have its own hero
+ * container and page-specific content overrides.
+ * 
+ * Supported page types:
+ *   - homepage   (default hero)
+ *   - product    (product page hero — spec comparison, CTA: "Add to Cart")
+ *   - category   (category page hero — filtered by use case)
+ *   - landing    (campaign landing page — matches UTM source)
+ * 
+ * Usage:
+ *   <section data-intentflow-hero data-intentflow-page="product">
+ * 
+ * If no data-intentflow-page is set, defaults to "homepage".
+ * 
+ * @module MultiPage
+ * @version 1.0.0
+ */
+
+(function (global) {
+    'use strict';
+
+    /**
+     * Page-specific content overrides.
+     * These modify the decision output based on which page the hero is on.
+     */
+    var pageOverrides = {
+        product: {
+            BUY_NOW: {
+                headline: 'You Found the One',
+                subheadline: 'This is the #1 rated monitor in its class. 4K, 144Hz, and ready to ship today.',
+                cta_text: 'Add to Cart — Ships Free →',
+                cta_link: '#add-to-cart'
+            },
+            COMPARE: {
+                headline: 'How Does It Compare?',
+                subheadline: 'See this monitor stacked against its top 3 competitors in specs, price, and reviews.',
+                cta_text: 'View Full Comparison →',
+                cta_link: '#specs-comparison'
+            },
+            USE_CASE: {
+                headline: 'Perfect for Your Workflow',
+                subheadline: 'Optimized for your use case with factory-calibrated colors and ergonomic flexibility.',
+                cta_text: 'See It in Action →',
+                cta_link: '#use-case-gallery'
+            },
+            BUDGET: {
+                headline: 'Best Value in Its Class',
+                subheadline: 'All the features you need at a price that makes sense. Currently 25% off.',
+                cta_text: 'Grab This Deal →',
+                cta_link: '#deal'
+            },
+            DEFAULT: {
+                headline: 'Explore This Monitor',
+                subheadline: 'Dive into the specs, read reviews, and see why thousands of customers love it.',
+                cta_text: 'View Full Details →',
+                cta_link: '#details'
+            }
+        },
+        category: {
+            BUY_NOW: {
+                headline: 'Top Picks, Ready to Ship',
+                subheadline: 'Our most popular monitors in this category — all in stock with free delivery.',
+                cta_text: 'Shop Best Sellers →',
+                cta_link: '#best-sellers'
+            },
+            COMPARE: {
+                headline: 'Compare All Models',
+                subheadline: 'Filter by specs, sort by price, and find the perfect monitor in seconds.',
+                cta_text: 'Open Comparison Tool →',
+                cta_link: '#compare-all'
+            },
+            USE_CASE: {
+                headline: 'Monitors for Every Need',
+                subheadline: 'Gaming, office, creative — browse monitors tailored to what you do.',
+                cta_text: 'Browse by Use Case →',
+                cta_link: '#filter-use-case'
+            },
+            BUDGET: {
+                headline: 'Quality Monitors Under $300',
+                subheadline: 'Our editors picked the best monitors at every price point. No compromises.',
+                cta_text: 'See Budget Picks →',
+                cta_link: '#under-300'
+            },
+            DEFAULT: {
+                headline: 'Browse the Collection',
+                subheadline: 'From ultrawide to portable — discover your next display.',
+                cta_text: 'View All Monitors →',
+                cta_link: '#all'
+            }
+        },
+        landing: {
+            BUY_NOW: {
+                headline: 'Exclusive Offer — Today Only',
+                subheadline: 'Get up to 40% off our best-selling 4K monitors. Limited quantities available.',
+                cta_text: 'Claim Your Deal →',
+                cta_link: '#offer'
+            },
+            COMPARE: {
+                headline: 'The Ultimate Monitor Guide',
+                subheadline: 'We tested 50+ monitors so you don\'t have to. See the definitive rankings.',
+                cta_text: 'Read the Guide →',
+                cta_link: '#guide'
+            },
+            USE_CASE: {
+                headline: 'Find Your Perfect Monitor in 60 Seconds',
+                subheadline: 'Take our quick quiz and get a personalized recommendation.',
+                cta_text: 'Start the Quiz →',
+                cta_link: '#quiz'
+            },
+            BUDGET: {
+                headline: 'Flash Sale: Premium Monitors from $99',
+                subheadline: 'Warehouse clearance event. Same quality, fraction of the price. Ends midnight.',
+                cta_text: 'Shop the Sale →',
+                cta_link: '#flash-sale'
+            },
+            DEFAULT: {
+                headline: 'Welcome to UltraView',
+                subheadline: 'The next generation of displays is here. See what makes us different.',
+                cta_text: 'Learn More →',
+                cta_link: '#about'
+            }
+        }
+    };
+
+    /**
+     * Detect the page type from the hero container
+     */
+    function detectPageType(container) {
+        if (!container) return 'homepage';
+        return container.getAttribute('data-intentflow-page') || 'homepage';
+    }
+
+    /**
+     * Apply page-specific overrides to a decision object
+     * Only modifies text content — template and image stay the same
+     */
+    function applyPageOverrides(decision, pageType) {
+        if (pageType === 'homepage' || !pageOverrides[pageType]) {
+            decision._pageType = 'homepage';
+            return decision;
+        }
+
+        var intent = decision.intent;
+        var overrides = pageOverrides[pageType][intent] || pageOverrides[pageType]['DEFAULT'];
+
+        if (overrides) {
+            decision.headline = overrides.headline;
+            decision.subheadline = overrides.subheadline;
+            decision.cta_text = overrides.cta_text;
+            decision.cta_link = overrides.cta_link;
+            decision._pageType = pageType;
+            decision.reason += ' [Multi-page: ' + pageType + ' page overrides applied]';
+        }
+
+        return decision;
+    }
+
+    /**
+     * Find all IntentFlow hero containers on the page
+     * (supports multiple heroes for multi-section pages)
+     */
+    function findAllContainers() {
+        return document.querySelectorAll('[data-intentflow-hero]');
+    }
+
+    /**
+     * Get available page types
+     */
+    function getPageTypes() {
+        return ['homepage', 'product', 'category', 'landing'];
+    }
+
+    /**
+     * Get page overrides for a specific page type (for debugging)
+     */
+    function getOverrides(pageType) {
+        return pageOverrides[pageType] || null;
+    }
+
+    /**
+     * Initialize — detect and log page type
+     */
+    function init() {
+        var containers = findAllContainers();
+        if (containers.length > 1) {
+            console.log(
+                '%c⚡ IntentFlow Multi-Page %c Found ' + containers.length + ' hero sections',
+                'background: #0891b2; color: white; padding: 2px 8px; border-radius: 4px 0 0 4px; font-weight: bold;',
+                'background: #1e1b4b; color: #a5b4fc; padding: 2px 8px; border-radius: 0 4px 4px 0;'
+            );
+        }
+
+        containers.forEach(function (container) {
+            var pageType = detectPageType(container);
+            if (pageType !== 'homepage') {
+                console.log(
+                    '%c⚡ IntentFlow Multi-Page %c Page type: ' + pageType,
+                    'background: #0891b2; color: white; padding: 2px 8px; border-radius: 4px 0 0 4px; font-weight: bold;',
+                    'background: #1e1b4b; color: #a5b4fc; padding: 2px 8px; border-radius: 0 4px 4px 0;'
+                );
+            }
+        });
+    }
+
+    // ── Export ──
+    global.IntentFlow = global.IntentFlow || {};
+    global.IntentFlow.MultiPage = {
+        init: init,
+        detectPageType: detectPageType,
+        applyPageOverrides: applyPageOverrides,
+        findAllContainers: findAllContainers,
+        getPageTypes: getPageTypes,
+        getOverrides: getOverrides
+    };
+
+})(window);
+/**
  * IntentFlow — Main SDK Entry Point
  * 
  * Single-file entry that orchestrates the entire personalization pipeline:
@@ -1558,8 +2097,19 @@
         // Step 2: Run decision engine
         var decision = IF.DecisionEngine.decide(intentResult);
 
-        // Step 3: Determine base path for assets
+        // Step 2b: Apply A/B variant (if A/B exploration is active)
+        if (IF.ABExplorer && IF.ABExplorer.isEnabled()) {
+            IF.ABExplorer.applyVariant(decision);
+        }
+
+        // Step 2c: Apply multi-page overrides (if on a non-homepage)
         var heroContainer = document.querySelector('[data-intentflow-hero]');
+        if (IF.MultiPage && heroContainer) {
+            var pageType = IF.MultiPage.detectPageType(heroContainer);
+            IF.MultiPage.applyPageOverrides(decision, pageType);
+        }
+
+        // Step 3: Determine base path for assets
         var assetBasePath = '';
         if (heroContainer && heroContainer.getAttribute('data-intentflow-assets')) {
             assetBasePath = heroContainer.getAttribute('data-intentflow-assets');
@@ -1619,6 +2169,16 @@
             IF.PreviewMode.init();
         }
 
+        // Initialize A/B explorer
+        if (IF.ABExplorer) {
+            IF.ABExplorer.init();
+        }
+
+        // Initialize multi-page support
+        if (IF.MultiPage) {
+            IF.MultiPage.init();
+        }
+
         // Load registries and run personalization
         loadRegistries(function (templates, assets) {
             // Initialize decision engine with registries
@@ -1630,7 +2190,9 @@
             IF.EventTracker.log('sdk_initialized', {
                 version: '1.0.0',
                 debug: IF.DebugOverlay && IF.DebugOverlay.isDebugEnabled(),
-                preview: IF.PreviewMode && IF.PreviewMode.isPreviewEnabled()
+                preview: IF.PreviewMode && IF.PreviewMode.isPreviewEnabled(),
+                ab_testing: IF.ABExplorer && IF.ABExplorer.isEnabled(),
+                multi_page: IF.MultiPage ? true : false
             });
         });
     }

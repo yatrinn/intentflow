@@ -29,6 +29,8 @@ Visitor → Intent Detector (4 signals) → Decision Engine → DOM Injector →
 | **Explainability** | Every decision outputs structured JSON with signals, confidence, and reasoning |
 | **Safety** | Finite templates (no generation), fallback to default, error boundary |
 | **Developer Tools** | Debug overlay (Ctrl+Shift+D), preview mode, event tracking console |
+| **A/B Exploration** | Random variant split per intent, localStorage CTR tracking, auto-winner selection |
+| **Multi-Page** | Page-aware personalization: homepage, product, category, and landing pages |
 
 ## Results & Demo
 

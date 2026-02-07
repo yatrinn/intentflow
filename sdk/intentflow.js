@@ -243,8 +243,19 @@
         // Step 2: Run decision engine
         var decision = IF.DecisionEngine.decide(intentResult);
 
-        // Step 3: Determine base path for assets
+        // Step 2b: Apply A/B variant (if A/B exploration is active)
+        if (IF.ABExplorer && IF.ABExplorer.isEnabled()) {
+            IF.ABExplorer.applyVariant(decision);
+        }
+
+        // Step 2c: Apply multi-page overrides (if on a non-homepage)
         var heroContainer = document.querySelector('[data-intentflow-hero]');
+        if (IF.MultiPage && heroContainer) {
+            var pageType = IF.MultiPage.detectPageType(heroContainer);
+            IF.MultiPage.applyPageOverrides(decision, pageType);
+        }
+
+        // Step 3: Determine base path for assets
         var assetBasePath = '';
         if (heroContainer && heroContainer.getAttribute('data-intentflow-assets')) {
             assetBasePath = heroContainer.getAttribute('data-intentflow-assets');
@@ -304,6 +315,16 @@
             IF.PreviewMode.init();
         }
 
+        // Initialize A/B explorer
+        if (IF.ABExplorer) {
+            IF.ABExplorer.init();
+        }
+
+        // Initialize multi-page support
+        if (IF.MultiPage) {
+            IF.MultiPage.init();
+        }
+
         // Load registries and run personalization
         loadRegistries(function (templates, assets) {
             // Initialize decision engine with registries
@@ -315,7 +336,9 @@
             IF.EventTracker.log('sdk_initialized', {
                 version: '1.0.0',
                 debug: IF.DebugOverlay && IF.DebugOverlay.isDebugEnabled(),
-                preview: IF.PreviewMode && IF.PreviewMode.isPreviewEnabled()
+                preview: IF.PreviewMode && IF.PreviewMode.isPreviewEnabled(),
+                ab_testing: IF.ABExplorer && IF.ABExplorer.isEnabled(),
+                multi_page: IF.MultiPage ? true : false
             });
         });
     }

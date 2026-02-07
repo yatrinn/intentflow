@@ -122,6 +122,8 @@
     <script src="../sdk/engine/intent-detector.js"></script>
     <script src="../sdk/engine/decision-engine.js"></script>
     <script src="../sdk/engine/event-tracker.js"></script>
+    <script src="../sdk/engine/ab-explorer.js"></script>
+    <script src="../sdk/ui/multi-page.js"></script>
 
     <script>
         (function () {
@@ -199,6 +201,72 @@
                 var event = window.IntentFlow.EventTracker.log('test_event', { test: true });
                 assert('EventTracker.log() returns event', event && event.event === 'test_event');
                 assert('EventTracker.getEvents() returns array', window.IntentFlow.EventTracker.getEvents().length > 0);
+
+                // ── Test Group 4: A/B Explorer ──
+                assert('ABExplorer module loaded',
+                    window.IntentFlow && window.IntentFlow.ABExplorer,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.ABExplorer));
+
+                // Test: isEnabled returns boolean
+                assert('ABExplorer.isEnabled() returns boolean',
+                    typeof window.IntentFlow.ABExplorer.isEnabled() === 'boolean');
+
+                // Test: applyVariant modifies decision
+                var abDecision = {
+                    intent: 'BUY_NOW',
+                    confidence: 0.9,
+                    template: 'hero-impact',
+                    headline: 'Original',
+                    subheadline: 'Original Sub',
+                    cta_text: 'Original CTA',
+                    cta_link: '#',
+                    reason: 'Test',
+                    signals_used: []
+                };
+                window.IntentFlow.ABExplorer.enable();
+                var abVariant = window.IntentFlow.ABExplorer.applyVariant(abDecision);
+                assert('applyVariant() returns A or B', abVariant === 'A' || abVariant === 'B');
+                assert('applyVariant() sets _abVariant', abDecision._abVariant === 'A' || abDecision._abVariant === 'B');
+
+                // Test: getReport returns structured data
+                var report = window.IntentFlow.ABExplorer.getReport();
+                assert('getReport() returns report object', report && typeof report === 'object');
+                assert('getReport() has BUY_NOW entry', report.BUY_NOW && typeof report.BUY_NOW.totalImpressions === 'number');
+
+                // Clean up
+                window.IntentFlow.ABExplorer.reset();
+                window.IntentFlow.ABExplorer.disable();
+
+                // ── Test Group 5: Multi-Page ──
+                assert('MultiPage module loaded',
+                    window.IntentFlow && window.IntentFlow.MultiPage,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.MultiPage));
+
+                assert('detectPageType() returns string',
+                    typeof window.IntentFlow.MultiPage.detectPageType(null) === 'string');
+                assert('detectPageType(null) defaults to homepage',
+                    window.IntentFlow.MultiPage.detectPageType(null) === 'homepage');
+
+                assert('getPageTypes() returns array',
+                    Array.isArray(window.IntentFlow.MultiPage.getPageTypes()));
+                assert('getPageTypes() has 4 types',
+                    window.IntentFlow.MultiPage.getPageTypes().length === 4);
+
+                // Test: applyPageOverrides
+                var mpDecision = {
+                    intent: 'BUY_NOW',
+                    headline: 'Original',
+                    subheadline: 'Sub',
+                    cta_text: 'CTA',
+                    cta_link: '#',
+                    reason: 'Test'
+                };
+                window.IntentFlow.MultiPage.applyPageOverrides(mpDecision, 'product');
+                assert('applyPageOverrides changes headline for product page',
+                    mpDecision.headline !== 'Original',
+                    'headline: ' + mpDecision.headline);
+                assert('applyPageOverrides sets _pageType',
+                    mpDecision._pageType === 'product');
 
                 // ── Render Results ──
                 renderResults();

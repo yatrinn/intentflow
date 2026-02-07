@@ -20,6 +20,8 @@ IntentFlow detects visitor intent from context signals (UTM parameters, referrer
 | **Debug Overlay** | "Why this variant?" panel showing detected intent, confidence, signals, and full decision JSON |
 | **Preview Mode** | Site-owner panel to simulate all intents and see variants live |
 | **Event Tracking** | Lightweight client-side analytics for impressions, CTA clicks, and variant swaps |
+| **A/B Exploration** | Randomly split visitors between 2 content variants per intent, track CTR, and auto-pick the winner |
+| **Multi-Page Support** | Personalize heroes on homepage, product pages, category pages, and landing pages with page-aware content |
 
 ---
 
@@ -157,6 +159,22 @@ open demo/index.html
 | `?intent=budget` | BUDGET | Value hero + "View Deals" CTA |
 | `?intentflow_debug=true` | — | Shows debug overlay |
 | `?intentflow_preview=true` | — | Shows preview mode panel |
+| `?intentflow_ab=true` | — | Enables A/B exploration (random variant split) |
+
+### Multi-page personalization
+
+Add `data-intentflow-page` to hero sections on different page types:
+
+```html
+<!-- Product page -->
+<section data-intentflow-hero data-intentflow-page="product">
+
+<!-- Category page -->
+<section data-intentflow-hero data-intentflow-page="category">
+
+<!-- Landing page -->
+<section data-intentflow-hero data-intentflow-page="landing">
+```
 
 Or use the **persona toggle bar** at the top of the demo page to switch intents live.
 
@@ -178,14 +196,16 @@ intentflow/
 │   ├── engine/
 │   │   ├── intent-detector.js   # Multi-signal intent detection
 │   │   ├── decision-engine.js   # Explainable template selection
-│   │   └── event-tracker.js     # Lightweight analytics
+│   │   ├── event-tracker.js     # Lightweight analytics
+│   │   └── ab-explorer.js       # A/B variant exploration
 │   ├── registry/
 │   │   ├── templates.json       # 3 hero template definitions
 │   │   └── assets.json          # Asset library (images, badges, content)
 │   └── ui/
 │       ├── injector.js          # Safe DOM mutation
 │       ├── debug-overlay.js     # "Why this variant" overlay
-│       └── preview-mode.js      # Site-owner preview panel
+│       ├── preview-mode.js      # Site-owner preview panel
+│       └── multi-page.js        # Multi-page personalization
 ├── demo/                        # Demo store (monitors e-commerce)
 │   ├── index.html               # Polished storefront
 │   ├── styles.css               # Premium dark-mode design
