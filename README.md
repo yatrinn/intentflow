@@ -12,9 +12,10 @@ IntentFlow detects visitor intent from context signals (UTM parameters, referrer
 
 | Feature | Description |
 |---|---|
-| **Intent Detection** | Analyzes 4+ signal types (UTM params, referrer, on-page behavior, persona toggle) to determine why a visitor arrived |
+| **7-Signal Intent Detection** | Analyzes URL/UTM params, referrer, behavior, persona toggle, device type, time of day, and screen size to determine visitor intent |
 | **Smart Decision Engine** | Rules-based AI selects the best hero template, image, and CTA from a finite registry — with full explainability |
 | **DOM Injection** | Safely swaps hero content with smooth fade transitions; auto-fallback to default on error |
+| **Mid-Session Re-Personalization** | Real-time behavioral observer adapts the hero DURING the visit based on scroll, click, and hover patterns |
 | **3 Hero Templates** | Impact (buy), Comparison (research), Value (budget) — each with distinct layouts optimized for different intents |
 | **6 Asset Variants** | Gaming, office, creative, budget, comparison, and default hero images |
 | **Debug Overlay** | "Why this variant?" panel showing detected intent, confidence, signals, and full decision JSON |
@@ -22,6 +23,7 @@ IntentFlow detects visitor intent from context signals (UTM parameters, referrer
 | **Event Tracking** | Lightweight client-side analytics for impressions, CTA clicks, and variant swaps |
 | **A/B Exploration** | Randomly split visitors between 2 content variants per intent, track CTR, and auto-pick the winner |
 | **Multi-Page Support** | Personalize heroes on homepage, product pages, category pages, and landing pages with page-aware content |
+| **Conversion Analytics** | Dashboard with conversion funnel, intent distribution, signal breakdown, and ROI projections |
 
 ---
 
@@ -53,6 +55,7 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 > <script src="sdk/engine/intent-detector.js"></script>
 > <script src="sdk/engine/decision-engine.js"></script>
 > <script src="sdk/engine/event-tracker.js"></script>
+> <script src="sdk/engine/context-observer.js"></script>
 > <script src="sdk/ui/injector.js"></script>
 > <script src="sdk/ui/debug-overlay.js"></script>
 > <script src="sdk/ui/preview-mode.js"></script>
@@ -76,10 +79,10 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 │ • Referrer Analysis  │     │ • Image Selection    │
 │ • Behavior Signals   │     │ • CTA Optimization   │
 │ • Persona Override   │     │ • Explainable Output │
-└─────────────────────┘     └──────────┬───────────┘
-                                       │
-              ┌────────────────────────┤
-              ▼                        ▼
+│ • Device Type        │     └──────────┬───────────┘
+│ • Time of Day        │                │
+│ • Screen Size        │   ┌────────────┤
+└─────────────────────┘   ▼            ▼
 ┌──────────────────┐    ┌────────────────────────┐
 │ Template Registry │    │     Asset Library       │
 │  (templates.json) │    │     (assets.json)       │
@@ -104,6 +107,16 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
     ┌──────────────┐ ┌──────────┐ ┌──────────────┐
     │Debug Overlay │ │Event Log │ │Preview Mode  │
     └──────────────┘ └──────────┘ └──────────────┘
+              │
+              ▼
+    ┌──────────────────┐     ┌──────────────────┐
+    │Context Observer  │────▶│ Re-Personalize   │
+    │                  │     │ (live hero swap)  │
+    │ • Scroll velocity│     └──────────────────┘
+    │ • Click patterns │
+    │ • Section views  │     ┌──────────────────┐
+    │ • Hover dwell    │     │Analytics Dashboard│
+    └──────────────────┘     └──────────────────┘
 ```
 
 ---
@@ -194,10 +207,11 @@ intentflow/
 │   ├── intentflow.bundle.js     # ⚡ Single-file bundle (all-in-one)
 │   ├── intentflow.js            # Main entry point (modular)
 │   ├── engine/
-│   │   ├── intent-detector.js   # Multi-signal intent detection
+│   │   ├── intent-detector.js   # 7-signal intent detection
 │   │   ├── decision-engine.js   # Explainable template selection
 │   │   ├── event-tracker.js     # Lightweight analytics
-│   │   └── ab-explorer.js       # A/B variant exploration
+│   │   ├── ab-explorer.js       # A/B variant exploration
+│   │   └── context-observer.js  # Real-time behavioral re-personalization
 │   ├── registry/
 │   │   ├── templates.json       # 3 hero template definitions
 │   │   └── assets.json          # Asset library (images, badges, content)
@@ -208,11 +222,12 @@ intentflow/
 │       └── multi-page.js        # Multi-page personalization
 ├── demo/                        # Demo store (monitors e-commerce)
 │   ├── index.html               # Polished storefront
+│   ├── analytics.html           # Conversion analytics dashboard
 │   ├── styles.css               # Premium dark-mode design
 │   ├── demo.js                  # Persona toggle + event log
 │   └── assets/                  # Hero images (6 variants)
 └── tests/
-    └── test-engine.html         # Browser-based test harness
+    └── test-engine.html         # Browser-based test harness (48 tests)
 ```
 
 ---
@@ -221,10 +236,10 @@ intentflow/
 
 | Intent | Trigger Signals | Example URL |
 |---|---|---|
-| `BUY_NOW` | "buy", "purchase", "shop" in query; email referrer | `?q=buy+4k+monitor` |
-| `COMPARE` | "compare", "vs", "best" in query; Google/Reddit referrer | `?utm_campaign=comparison` |
-| `USE_CASE` | "gaming", "design", "coding" in query; YouTube referrer | `?q=monitor+for+gaming` |
-| `BUDGET` | "cheap", "budget", "under" in query; deal sites referrer | `?q=cheap+144hz+monitor` |
+| `BUY_NOW` | "buy", "purchase" in query; email referrer; desktop device; evening hours | `?q=buy+4k+monitor` |
+| `COMPARE` | "compare", "vs", "best" in query; Google/Reddit referrer; fast scrolling | `?utm_campaign=comparison` |
+| `USE_CASE` | "gaming", "design", "coding" in query; YouTube referrer; business hours; 4K screen | `?q=monitor+for+gaming` |
+| `BUDGET` | "cheap", "budget", "under" in query; deal sites referrer; late night; small viewport | `?q=cheap+144hz+monitor` |
 | `DEFAULT` | No strong signals detected | (no params) |
 
 ---
@@ -236,6 +251,8 @@ intentflow/
 3. **Graceful fallback** — If anything fails, the original default content is preserved.
 4. **Explainable** — Every decision includes a human-readable explanation and full signal breakdown.
 5. **Zero dependencies** — Pure vanilla JavaScript. No frameworks, no build tools.
+6. **Real-time adaptation** — Behavioral observer re-personalizes mid-session based on actual user actions.
+7. **Privacy-safe** — All context signals (device, time, screen) use privacy-respecting browser APIs. No cookies, no fingerprinting.
 
 ---
 
@@ -247,7 +264,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## 🏆 Built for
 
-**Hack-Nation Global AI Hackathon 2026**  
+**4th Hack-Nation Global AI Hackathon 2026**  
 Challenge: *Plug-And-Play Dynamic Website — Automated, dynamic website based on third party user data*
 
 Built by **Yannik Trinn** · [GitHub](https://github.com/yatrinn)

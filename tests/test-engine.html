@@ -123,6 +123,7 @@
     <script src="../sdk/engine/decision-engine.js"></script>
     <script src="../sdk/engine/event-tracker.js"></script>
     <script src="../sdk/engine/ab-explorer.js"></script>
+    <script src="../sdk/engine/context-observer.js"></script>
     <script src="../sdk/ui/multi-page.js"></script>
 
     <script>
@@ -158,6 +159,17 @@
                 assert('detect() returns signals array', detection && Array.isArray(detection.signals));
                 assert('detect() returns scores object', detection && typeof detection.scores === 'object');
                 assert('detect() returns timestamp', detection && typeof detection.timestamp === 'string');
+
+                // Test: Context signals are included
+                assert('detect() includes device_type signal',
+                    detection.signals.some(function (s) { return s.type === 'device_type'; }),
+                    'Signal types: ' + detection.signals.map(function (s) { return s.type; }).join(', '));
+                assert('detect() includes time_of_day signal',
+                    detection.signals.some(function (s) { return s.type === 'time_of_day'; }));
+                assert('detect() includes screen_size signal',
+                    detection.signals.some(function (s) { return s.type === 'screen_size'; }));
+                assert('detect() has at least 3 context signals', detection.signalCount >= 3,
+                    'signalCount: ' + detection.signalCount);
 
                 // Test: parseQueryParams
                 var params = window.IntentFlow.IntentDetector.parseQueryParams();
@@ -267,6 +279,21 @@
                     'headline: ' + mpDecision.headline);
                 assert('applyPageOverrides sets _pageType',
                     mpDecision._pageType === 'product');
+
+                // ── Test Group 6: Context Observer ──
+                assert('ContextObserver module loaded',
+                    window.IntentFlow && window.IntentFlow.ContextObserver,
+                    'typeof: ' + typeof (window.IntentFlow && window.IntentFlow.ContextObserver));
+
+                assert('ContextObserver.isEnabled() returns boolean',
+                    typeof window.IntentFlow.ContextObserver.isEnabled() === 'boolean');
+
+                assert('ContextObserver.getReport() returns object',
+                    typeof window.IntentFlow.ContextObserver.getReport() === 'object');
+
+                assert('ContextObserver.getBehaviorScores() returns scores',
+                    typeof window.IntentFlow.ContextObserver.getBehaviorScores() === 'object' &&
+                    'BUY_NOW' in window.IntentFlow.ContextObserver.getBehaviorScores());
 
                 // ── Render Results ──
                 renderResults();

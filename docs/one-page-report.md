@@ -11,26 +11,31 @@ Most websites show the same homepage to every visitor, regardless of why they ar
 ## How It Works
 
 ```
-Visitor → Intent Detector (4 signals) → Decision Engine → DOM Injector → Personalized Hero
+Visitor → Intent Detector (7 signals) → Decision Engine → DOM Injector → Personalized Hero
+                                                                              ↑
+                                                          Context Observer ────┘ (mid-session re-personalization)
 ```
 
-1. **Intent Detection** — Analyzes URL parameters, UTM tags, referrer source, and on-page behavior to classify intent (Buy Now, Compare, Use Case, Budget, Default)
+1. **Intent Detection** — Analyzes 7 signal types: URL/UTM params, referrer, behavior, persona toggle, device type, time of day, and screen size
 2. **Decision Engine** — Scores signals, selects the best template and content from a finite registry, outputs an explainable decision object with confidence and reasoning
 3. **DOM Injection** — Safely swaps hero content with smooth transitions; graceful fallback on error
+4. **Context Observer** — Watches real-time behavior (scroll velocity, clicks, hover dwell, section visibility) and re-personalizes mid-session
 
 ## Technical Highlights
 
 | Component | Implementation |
 |---|---|
 | **Architecture** | 100% client-side JavaScript, zero dependencies, no build tools |
-| **Intent Signals** | 4 types: UTM/query params, referrer analysis, behavior, persona toggle |
+| **Intent Signals** | 7 types: UTM/query params, referrer, behavior, persona toggle, device type, time of day, screen size |
 | **Templates** | 3 hero layouts: Impact, Comparison, Value — stored as JSON registry |
 | **Assets** | 6 hero images, 6 badge icons, 5 content variants per intent |
 | **Explainability** | Every decision outputs structured JSON with signals, confidence, and reasoning |
+| **Re-Personalization** | Real-time behavioral observer adapts hero DURING visit (IntersectionObserver, scroll velocity, click patterns) |
 | **Safety** | Finite templates (no generation), fallback to default, error boundary |
 | **Developer Tools** | Debug overlay (Ctrl+Shift+D), preview mode, event tracking console |
 | **A/B Exploration** | Random variant split per intent, localStorage CTR tracking, auto-winner selection |
 | **Multi-Page** | Page-aware personalization: homepage, product, category, and landing pages |
+| **Analytics Dashboard** | Conversion funnel, intent distribution, signal breakdown, ROI projections |
 
 ## Results & Demo
 
@@ -49,4 +54,4 @@ Personalization for the long tail — **6M+ Shopify stores**, millions of SMB we
 
 ---
 
-**Built by Yannik Trinn** | Hack-Nation Global AI Hackathon 2026 | [github.com/yatrinn/intentflow](https://github.com/yatrinn/intentflow)
+**Built by Yannik Trinn** | 4th Hack-Nation Global AI Hackathon 2026 | [github.com/yatrinn/intentflow](https://github.com/yatrinn/intentflow)

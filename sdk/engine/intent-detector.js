@@ -1,11 +1,16 @@
 /**
  * IntentFlow — Intent Detector Module
  * 
- * Detects visitor intent from multiple context signals:
+ * Detects visitor intent from 7 context signals:
  * 1. URL query parameters / UTM tags
  * 2. Referrer analysis
  * 3. On-page behavior (scroll/click in first 5 seconds)
  * 4. Persona toggle (manual override for demos)
+ * 5. Device type (mobile / tablet / desktop)
+ * 6. Time of day (morning / business / evening / night)
+ * 7. Screen size & viewport class
+ * 
+ * All signals are privacy-safe — no cookies, no fingerprinting, no PII.
  * 
  * @module IntentDetector
  */
@@ -292,6 +297,124 @@
     }
 
     /**
+     * Signal 5: Detect intent from device type (privacy-safe, no fingerprinting)
+     * Mobile users tend to browse/compare, desktop users are more purchase-ready
+     */
+    function detectFromDeviceType() {
+        const signals = [];
+        const scores = { BUY_NOW: 0, COMPARE: 0, USE_CASE: 0, BUDGET: 0, DEFAULT: 0 };
+
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const screenWidth = window.screen.width;
+        var deviceType = 'desktop';
+
+        if (isTouchDevice && screenWidth < 768) {
+            deviceType = 'mobile';
+        } else if (isTouchDevice && screenWidth < 1200) {
+            deviceType = 'tablet';
+        }
+
+        // Mobile users are more likely browsing/comparing (lower purchase intent)
+        // Desktop users are more likely ready to buy (higher purchase intent)
+        var intentMap = {
+            'mobile': { intent: INTENTS.COMPARE, weight: 0.15, reason: 'Mobile visitors tend to research and compare before purchasing' },
+            'tablet': { intent: INTENTS.USE_CASE, weight: 0.1, reason: 'Tablet users often explore use cases and visual content' },
+            'desktop': { intent: INTENTS.BUY_NOW, weight: 0.15, reason: 'Desktop visitors show higher purchase readiness' }
+        };
+
+        var config = intentMap[deviceType];
+        signals.push({
+            type: 'device_type',
+            key: 'navigator.touchPoints + screen.width',
+            value: deviceType,
+            detectedIntent: config.intent,
+            description: config.reason,
+            weight: config.weight
+        });
+        scores[config.intent] += config.weight;
+
+        return { scores, signals };
+    }
+
+    /**
+     * Signal 6: Detect intent from time of day (privacy-safe)
+     * Business hours → work/use-case intent, evenings → browsing/compare
+     */
+    function detectFromTimeOfDay() {
+        const signals = [];
+        const scores = { BUY_NOW: 0, COMPARE: 0, USE_CASE: 0, BUDGET: 0, DEFAULT: 0 };
+
+        const hour = new Date().getHours();
+        var timeSlot, config;
+
+        if (hour >= 6 && hour < 9) {
+            timeSlot = 'early_morning';
+            config = { intent: INTENTS.COMPARE, weight: 0.1, reason: 'Early morning visitors often do pre-purchase research' };
+        } else if (hour >= 9 && hour < 17) {
+            timeSlot = 'business_hours';
+            config = { intent: INTENTS.USE_CASE, weight: 0.12, reason: 'Business hours suggest work/professional use-case exploration' };
+        } else if (hour >= 17 && hour < 21) {
+            timeSlot = 'evening';
+            config = { intent: INTENTS.BUY_NOW, weight: 0.12, reason: 'Evening visitors are more likely to make purchase decisions' };
+        } else {
+            timeSlot = 'night';
+            config = { intent: INTENTS.BUDGET, weight: 0.1, reason: 'Late-night browsing correlates with deal-seeking behavior' };
+        }
+
+        signals.push({
+            type: 'time_of_day',
+            key: 'local_hour',
+            value: timeSlot + ' (hour: ' + hour + ')',
+            detectedIntent: config.intent,
+            description: config.reason,
+            weight: config.weight
+        });
+        scores[config.intent] += config.weight;
+
+        return { scores, signals };
+    }
+
+    /**
+     * Signal 7: Detect intent from screen size / viewport class (privacy-safe)
+     * Large screens → creative professionals, small screens → casual/budget
+     */
+    function detectFromScreenSize() {
+        const signals = [];
+        const scores = { BUY_NOW: 0, COMPARE: 0, USE_CASE: 0, BUDGET: 0, DEFAULT: 0 };
+
+        const viewportWidth = window.innerWidth;
+        const pixelRatio = window.devicePixelRatio || 1;
+        const effectiveResolution = window.screen.width * pixelRatio;
+        var sizeClass, config;
+
+        if (effectiveResolution >= 3840) {
+            sizeClass = '4K+';
+            config = { intent: INTENTS.USE_CASE, weight: 0.15, reason: '4K+ display suggests creative professional or power user' };
+        } else if (effectiveResolution >= 2560) {
+            sizeClass = 'QHD';
+            config = { intent: INTENTS.COMPARE, weight: 0.1, reason: 'QHD display indicates tech-savvy user who compares specs' };
+        } else if (viewportWidth <= 480) {
+            sizeClass = 'small';
+            config = { intent: INTENTS.BUDGET, weight: 0.1, reason: 'Small viewport correlates with budget-conscious browsing' };
+        } else {
+            sizeClass = 'standard';
+            config = { intent: INTENTS.DEFAULT, weight: 0.05, reason: 'Standard viewport — no strong signal' };
+        }
+
+        signals.push({
+            type: 'screen_size',
+            key: 'viewport + devicePixelRatio',
+            value: sizeClass + ' (' + viewportWidth + 'px × ' + pixelRatio + 'x = ' + effectiveResolution + 'px effective)',
+            detectedIntent: config.intent,
+            description: config.reason,
+            weight: config.weight
+        });
+        scores[config.intent] += config.weight;
+
+        return { scores, signals };
+    }
+
+    /**
      * Aggregate all intent scores and determine the winning intent
      */
     function aggregateScores(allScores) {
@@ -333,20 +456,29 @@
     }
 
     /**
-     * Main detection function — runs all signal detectors and returns the result
+     * Main detection function — runs all 7 signal detectors and returns the result
      */
     function detect() {
         const params = parseQueryParams();
 
-        // Run all four signal detectors
+        // Run all seven signal detectors
         const queryResult = detectFromQueryParams(params);
         const referrerResult = detectFromReferrer();
         const behaviorResult = detectFromBehavior(params);
         const personaResult = detectFromPersonaToggle();
+        const deviceResult = detectFromDeviceType();
+        const timeResult = detectFromTimeOfDay();
+        const screenResult = detectFromScreenSize();
 
-        // Aggregate scores
-        const allScores = [queryResult.scores, referrerResult.scores, behaviorResult.scores, personaResult.scores];
-        const allSignals = [].concat(queryResult.signals, referrerResult.signals, behaviorResult.signals, personaResult.signals);
+        // Aggregate scores from all 7 signal sources
+        const allScores = [
+            queryResult.scores, referrerResult.scores, behaviorResult.scores,
+            personaResult.scores, deviceResult.scores, timeResult.scores, screenResult.scores
+        ];
+        const allSignals = [].concat(
+            queryResult.signals, referrerResult.signals, behaviorResult.signals,
+            personaResult.signals, deviceResult.signals, timeResult.signals, screenResult.signals
+        );
 
         const result = aggregateScores(allScores);
 

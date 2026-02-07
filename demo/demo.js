@@ -12,7 +12,7 @@
 
     // ── State ──
     var currentPersona = 'DEFAULT';
-    var eventLogExpanded = true;
+    var eventLogExpanded = false;
 
     /**
      * Initialize the persona toggle bar

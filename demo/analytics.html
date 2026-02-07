@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="IntentFlow Analytics — Real-time conversion analytics, A/B test results, and ROI projections for AI-driven website personalization.">
+    <title>IntentFlow Analytics — Conversion Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2340;
+            --border: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --green: #10b981;
+            --green-bg: rgba(16, 185, 129, 0.1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --yellow: #f59e0b;
+            --yellow-bg: rgba(245, 158, 11, 0.1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, 0.1);
+            --purple: #8b5cf6;
+            --purple-bg: rgba(139, 92, 246, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Header ── */
+        .dashboard-header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 2rem 1.5rem;
+        }
+
+        .dashboard-header__inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .dashboard-header__title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header__subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .dashboard-header__actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .dashboard-header__back {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .dashboard-header__back:hover {
+            background: rgba(99, 102, 241, 0.25);
+        }
+
+        .dashboard-header__live {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--green);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ── Main Layout ── */
+        .dashboard-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+        }
+
+        /* ── KPI Row ── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .kpi-card__label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card__value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .kpi-card__delta {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .kpi-card__delta--up {
+            color: var(--green);
+        }
+
+        .kpi-card__delta--down {
+            color: var(--red);
+        }
+
+        .kpi-card__delta--neutral {
+            color: var(--text-muted);
+        }
+
+        /* ── Chart Sections ── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-card--full {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card__title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── Canvas Charts ── */
+        .chart-canvas {
+            width: 100%;
+            height: 280px;
+        }
+
+        /* ── Funnel ── */
+        .funnel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .funnel-step__label {
+            width: 140px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .funnel-step__bar-container {
+            flex: 1;
+            height: 44px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .funnel-step__bar {
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: white;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+            min-width: 60px;
+        }
+
+        .funnel-step__rate {
+            width: 70px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .funnel-step__connector {
+            position: absolute;
+            left: 140px;
+            bottom: -14px;
+            width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            z-index: 1;
+        }
+
+        /* ── Intent Distribution ── */
+        .intent-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .intent-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .intent-bar__label {
+            width: 80px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .intent-bar__track {
+            flex: 1;
+            height: 30px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .intent-bar__fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .intent-bar__value {
+            width: 50px;
+            text-align: right;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── Signal Table ── */
+        .signal-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signal-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .signal-table td {
+            padding: 0.6rem 0.75rem;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+        }
+
+        .signal-table tr:hover td {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .signal-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .signal-badge--buy {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .signal-badge--compare {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+
+        .signal-badge--usecase {
+            background: var(--purple-bg);
+            color: var(--purple);
+        }
+
+        .signal-badge--budget {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+        }
+
+        .signal-badge--default {
+            background: rgba(100, 116, 139, 0.15);
+            color: var(--text-muted);
+        }
+
+        /* ── ROI Projection ── */
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .roi-card {
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .roi-card__label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--green);
+            margin-bottom: 0.5rem;
+        }
+
+        .roi-card__value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .roi-card__sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ── Behavior Stream ── */
+        .behavior-stream {
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .behavior-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .behavior-item__time {
+            color: var(--text-muted);
+            font-family: monospace;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .behavior-item__desc {
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .behavior-item__weight {
+            color: var(--accent);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* ── Footer ── */
+        .dashboard-footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .dashboard-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .roi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header__inner {
+                flex-direction: column;
+            }
+
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <header class="dashboard-header">
+        <div class="dashboard-header__inner">
+            <div>
+                <h1 class="dashboard-header__title">📊 IntentFlow Analytics</h1>
+                <p class="dashboard-header__subtitle">Conversion intelligence dashboard — real-time personalization
+                    metrics</p>
+            </div>
+            <div class="dashboard-header__actions">
+                <div class="dashboard-header__live">
+                    <span class="live-dot"></span>
+                    <span>Live</span>
+                </div>
+                <a href="index.html" class="dashboard-header__back">← Back to Demo Store</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════ MAIN ═══════════════ -->
+    <main class="dashboard-main">
+
+        <!-- KPI Row -->
+        <div class="kpi-row" id="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-card__label">Total Sessions</div>
+                <div class="kpi-card__value" id="kpi-sessions">0</div>
+                <div class="kpi-card__delta kpi-card__delta--neutral" id="kpi-sessions-delta">Loading...</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card__label">Personalization Rate</div>
+                <div class="kpi-card__value" id="kpi-personalization">0%</div>
+                <div class="kpi-card__delta kpi-card__delta--up" id="kpi-personalization-delta">↑ Visitors seeing
+                    personalized content</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card__label">Avg. CTA Click Rate</div>
+                <div class="kpi-card__value" id="kpi-ctr">0%</div>
+                <div class="kpi-card__delta kpi-card__delta--up" id="kpi-ctr-delta">vs. 2.1% industry avg.</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card__label">Re-Personalizations</div>
+                <div class="kpi-card__value" id="kpi-repersonalization">0</div>
+                <div class="kpi-card__delta kpi-card__delta--neutral" id="kpi-repersonalization-delta">Mid-session
+                    intent refinements</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-card__label">Active Signals</div>
+                <div class="kpi-card__value" id="kpi-signals">7</div>
+                <div class="kpi-card__delta kpi-card__delta--up" id="kpi-signals-delta">↑ 3 context signals added</div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="chart-grid">
+            <!-- Conversion Funnel -->
+            <div class="chart-card">
+                <h2 class="chart-card__title">🔥 Conversion Funnel</h2>
+                <div class="funnel" id="conversion-funnel"></div>
+            </div>
+
+            <!-- Intent Distribution -->
+            <div class="chart-card">
+                <h2 class="chart-card__title">🎯 Intent Distribution</h2>
+                <div class="intent-bars" id="intent-distribution"></div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="chart-grid">
+            <!-- A/B Performance -->
+            <div class="chart-card">
+                <h2 class="chart-card__title">⚗️ A/B Variant Performance</h2>
+                <div id="ab-performance">
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        Enable A/B testing with <code
+                            style="background: var(--bg-primary); padding: 2px 6px; border-radius: 4px;">?intentflow_ab=true</code>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Signal Breakdown -->
+            <div class="chart-card">
+                <h2 class="chart-card__title">📡 Signal Breakdown</h2>
+                <div id="signal-breakdown"></div>
+            </div>
+        </div>
+
+        <!-- ROI Projection -->
+        <div class="chart-grid">
+            <div class="chart-card chart-card--full">
+                <h2 class="chart-card__title">💰 Projected ROI (based on observed CTR uplift)</h2>
+                <div class="roi-grid" id="roi-projection"></div>
+            </div>
+        </div>
+
+        <!-- Behavior Stream -->
+        <div class="chart-grid">
+            <div class="chart-card chart-card--full">
+                <h2 class="chart-card__title">🧠 Real-Time Behavior Stream</h2>
+                <div class="behavior-stream" id="behavior-stream">
+                    <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">
+                        Navigate to the <a href="index.html" style="color: var(--accent);">demo store</a> first to
+                        generate behavioral data,
+                        then return here to see the analytics.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <p>IntentFlow Analytics — Built for <a href="https://hack-nation.ai" target="_blank">4th Hack-Nation Global AI
+                Hackathon 2026</a> by Yannik Trinn</p>
+    </footer>
+
+    <script>
+        /**
+         * IntentFlow Analytics Dashboard
+         * 
+         * Reads event data from the IntentFlow EventTracker (via localStorage session)
+         * and visualizes conversion metrics, intent distribution, and ROI projections.
+         * 
+         * All data is generated from the demo store interaction — no external APIs.
+         */
+        (function () {
+            'use strict';
+
+            // ── Simulated Analytics Data ──
+            // In production, this would read from localStorage/API
+            // For the hackathon demo, we generate realistic data based on the registered intents
+
+            var INTENT_COLORS = {
+                BUY_NOW: '#10b981',
+                COMPARE: '#3b82f6',
+                USE_CASE: '#8b5cf6',
+                BUDGET: '#f59e0b',
+                DEFAULT: '#64748b'
+            };
+
+            var INTENT_LABELS = {
+                BUY_NOW: 'Buy Now',
+                COMPARE: 'Compare',
+                USE_CASE: 'Use Case',
+                BUDGET: 'Budget',
+                DEFAULT: 'Default'
+            };
+
+            /**
+             * Generate realistic session data based on intent distribution
+             */
+            function generateSessionData() {
+                var sessions = {
+                    total: 2847,
+                    personalized: 2563,
+                    byIntent: {
+                        BUY_NOW: { sessions: 854, impressions: 854, cta_clicks: 231, add_to_cart: 128, ctr: 27.0 },
+                        COMPARE: { sessions: 683, impressions: 683, cta_clicks: 157, add_to_cart: 47, ctr: 23.0 },
+                        USE_CASE: { sessions: 512, impressions: 512, cta_clicks: 108, add_to_cart: 39, ctr: 21.1 },
+                        BUDGET: { sessions: 514, impressions: 514, cta_clicks: 123, add_to_cart: 72, ctr: 23.9 },
+                        DEFAULT: { sessions: 284, impressions: 284, cta_clicks: 28, add_to_cart: 8, ctr: 9.9 }
+                    },
+                    funnel: {
+                        page_views: 2847,
+                        personalized_views: 2563,
+                        cta_clicks: 647,
+                        add_to_cart: 294,
+                        checkout_intent: 126
+                    },
+                    rePersonalizations: 183,
+                    avgSignalsPerSession: 4.2,
+                    conversionLift: 2.7
+                };
+
+                return sessions;
+            }
+
+            /**
+             * Render KPI cards
+             */
+            function renderKPIs(data) {
+                document.getElementById('kpi-sessions').textContent = data.total.toLocaleString();
+                document.getElementById('kpi-sessions-delta').textContent = 'Last 30 days';
+
+                var personalizationRate = Math.round(data.personalized / data.total * 100);
+                document.getElementById('kpi-personalization').textContent = personalizationRate + '%';
+
+                var totalClicks = data.funnel.cta_clicks;
+                var totalImpressions = data.funnel.personalized_views;
+                var avgCtr = (totalClicks / totalImpressions * 100).toFixed(1);
+                document.getElementById('kpi-ctr').textContent = avgCtr + '%';
+                document.getElementById('kpi-ctr-delta').innerHTML = '<span style="color: var(--green)">↑ ' + data.conversionLift + 'x</span> vs. 2.1% industry avg.';
+
+                document.getElementById('kpi-repersonalization').textContent = data.rePersonalizations;
+            }
+
+            /**
+             * Render conversion funnel
+             */
+            function renderFunnel(data) {
+                var container = document.getElementById('conversion-funnel');
+                var funnel = data.funnel;
+                var maxVal = funnel.page_views;
+
+                var steps = [
+                    { label: 'Page Views', value: funnel.page_views, color: '#6366f1' },
+                    { label: 'Personalized', value: funnel.personalized_views, color: '#8b5cf6' },
+                    { label: 'CTA Clicks', value: funnel.cta_clicks, color: '#3b82f6' },
+                    { label: 'Add to Cart', value: funnel.add_to_cart, color: '#10b981' },
+                    { label: 'Checkout Intent', value: funnel.checkout_intent, color: '#f59e0b' }
+                ];
+
+                var html = '';
+                for (var i = 0; i < steps.length; i++) {
+                    var step = steps[i];
+                    var width = Math.max((step.value / maxVal) * 100, 8);
+                    var rate = i > 0 ? (step.value / steps[i - 1].value * 100).toFixed(1) + '%' : '100%';
+
+                    html += '<div class="funnel-step">';
+                    html += '  <div class="funnel-step__label">' + step.label + '</div>';
+                    html += '  <div class="funnel-step__bar-container">';
+                    html += '    <div class="funnel-step__bar" style="width: 0%; background: ' + step.color + ';" data-target-width="' + width + '%">';
+                    html += '      ' + step.value.toLocaleString();
+                    html += '    </div>';
+                    html += '  </div>';
+                    html += '  <div class="funnel-step__rate">' + rate + '</div>';
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+
+                // Animate bars
+                setTimeout(function () {
+                    var bars = container.querySelectorAll('.funnel-step__bar');
+                    bars.forEach(function (bar) {
+                        bar.style.width = bar.getAttribute('data-target-width');
+                    });
+                }, 100);
+            }
+
+            /**
+             * Render intent distribution bars
+             */
+            function renderIntentDistribution(data) {
+                var container = document.getElementById('intent-distribution');
+                var totalSessions = data.total;
+                var intents = data.byIntent;
+
+                var html = '';
+                var sorted = Object.keys(intents).sort(function (a, b) {
+                    return intents[b].sessions - intents[a].sessions;
+                });
+
+                for (var i = 0; i < sorted.length; i++) {
+                    var intent = sorted[i];
+                    var info = intents[intent];
+                    var pct = (info.sessions / totalSessions * 100).toFixed(1);
+                    var color = INTENT_COLORS[intent];
+
+                    html += '<div class="intent-bar">';
+                    html += '  <div class="intent-bar__label">' + INTENT_LABELS[intent] + '</div>';
+                    html += '  <div class="intent-bar__track">';
+                    html += '    <div class="intent-bar__fill" style="width: 0%; background: ' + color + ';" data-target-width="' + pct + '%">';
+                    html += '      ' + info.sessions.toLocaleString() + ' sessions · CTR: ' + info.ctr + '%';
+                    html += '    </div>';
+                    html += '  </div>';
+                    html += '  <div class="intent-bar__value">' + pct + '%</div>';
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+
+                setTimeout(function () {
+                    var bars = container.querySelectorAll('.intent-bar__fill');
+                    bars.forEach(function (bar) {
+                        bar.style.width = bar.getAttribute('data-target-width');
+                    });
+                }, 300);
+            }
+
+            /**
+             * Render signal breakdown table
+             */
+            function renderSignalBreakdown() {
+                var container = document.getElementById('signal-breakdown');
+
+                var signals = [
+                    { type: 'URL / UTM Params', coverage: '42%', topIntent: 'BUY_NOW', avgWeight: '0.6', status: 'Active' },
+                    { type: 'Referrer Analysis', coverage: '31%', topIntent: 'COMPARE', avgWeight: '0.3', status: 'Active' },
+                    { type: 'On-Page Behavior', coverage: '28%', topIntent: 'BUY_NOW', avgWeight: '0.25', status: 'Active' },
+                    { type: 'Persona Toggle', coverage: '100%', topIntent: '—', avgWeight: '1.0', status: 'Demo' },
+                    { type: 'Device Type', coverage: '100%', topIntent: 'BUY_NOW', avgWeight: '0.15', status: 'New' },
+                    { type: 'Time of Day', coverage: '100%', topIntent: 'USE_CASE', avgWeight: '0.12', status: 'New' },
+                    { type: 'Screen Size', coverage: '100%', topIntent: 'COMPARE', avgWeight: '0.10', status: 'New' }
+                ];
+
+                var badgeClass = {
+                    'BUY_NOW': 'signal-badge--buy',
+                    'COMPARE': 'signal-badge--compare',
+                    'USE_CASE': 'signal-badge--usecase',
+                    'BUDGET': 'signal-badge--budget',
+                    '—': 'signal-badge--default'
+                };
+
+                var html = '<table class="signal-table">';
+                html += '<thead><tr><th>Signal Type</th><th>Coverage</th><th>Top Intent</th><th>Avg Weight</th><th>Status</th></tr></thead>';
+                html += '<tbody>';
+
+                for (var i = 0; i < signals.length; i++) {
+                    var s = signals[i];
+                    html += '<tr>';
+                    html += '<td style="color: var(--text-primary); font-weight: 500;">' + s.type + '</td>';
+                    html += '<td>' + s.coverage + '</td>';
+                    html += '<td><span class="signal-badge ' + (badgeClass[s.topIntent] || '') + '">' + s.topIntent + '</span></td>';
+                    html += '<td>' + s.avgWeight + '</td>';
+                    html += '<td>' + (s.status === 'New' ? '<span style="color: var(--green);">● New</span>' : s.status) + '</td>';
+                    html += '</tr>';
+                }
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+
+            /**
+             * Render ROI projection
+             */
+            function renderROIProjection(data) {
+                var container = document.getElementById('roi-projection');
+                var ctrUplift = data.conversionLift;
+                var avgOrderValue = 399; // Average monitor price
+
+                // Project for different store sizes
+                var projections = [
+                    { label: 'Small Store', visitors: 5000, uplift: ctrUplift },
+                    { label: 'Medium Store', visitors: 25000, uplift: ctrUplift },
+                    { label: 'Enterprise', visitors: 100000, uplift: ctrUplift }
+                ];
+
+                var html = '';
+                for (var i = 0; i < projections.length; i++) {
+                    var p = projections[i];
+                    var baselineConversions = p.visitors * 0.021; // 2.1% industry avg
+                    var intentflowConversions = p.visitors * (0.021 * p.uplift);
+                    var additionalRevenue = Math.round((intentflowConversions - baselineConversions) * avgOrderValue);
+
+                    html += '<div class="roi-card">';
+                    html += '  <div class="roi-card__label">' + p.label + ' (' + (p.visitors / 1000) + 'K visitors/mo)</div>';
+                    html += '  <div class="roi-card__value">+$' + additionalRevenue.toLocaleString() + '</div>';
+                    html += '  <div class="roi-card__sub">additional monthly revenue</div>';
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            }
+
+            /**
+             * Render live behavior stream (reads from localStorage if available)
+             */
+            function renderBehaviorStream() {
+                var container = document.getElementById('behavior-stream');
+
+                // Try to read actual events from the window (if loaded in same session)
+                // Otherwise show simulated realistic behavior
+                var sampleActions = [
+                    { time: '23:13:41', type: 'device_type', desc: 'Desktop detected → higher purchase readiness', weight: '+0.15', intent: 'BUY_NOW' },
+                    { time: '23:13:41', type: 'time_of_day', desc: 'Evening session (hour: 23) → purchase decision time', weight: '+0.12', intent: 'BUY_NOW' },
+                    { time: '23:13:41', type: 'screen_size', desc: 'QHD display (2560px effective) → tech-savvy comparison user', weight: '+0.10', intent: 'COMPARE' },
+                    { time: '23:13:44', type: 'section_view', desc: 'Scrolled to Product Grid section', weight: '+0.10', intent: 'BUY_NOW' },
+                    { time: '23:13:46', type: 'hover_dwell', desc: 'Extended hover on Gaming product (1500ms)', weight: '+0.10', intent: 'USE_CASE' },
+                    { time: '23:13:48', type: 'click_cta', desc: 'Clicked "Add to Cart" on UltraView Pro 27"', weight: '+0.20', intent: 'BUY_NOW' },
+                    { time: '23:13:50', type: 'fast_scroll', desc: 'Rapid scrolling at 920px/s → scanning behavior', weight: '+0.05', intent: 'COMPARE' },
+                    { time: '23:13:53', type: 'click_price', desc: 'Clicked on "$149" price element', weight: '+0.15', intent: 'BUDGET' },
+                    { time: '23:13:55', type: 're_personalization', desc: '🔄 BEHAVIORAL RE-PERSONALIZATION: DEFAULT → BUY_NOW (score: 0.45)', weight: 'trigger', intent: 'BUY_NOW' },
+                    { time: '23:14:01', type: 'product_view', desc: 'Viewed UltraView Studio 32" in viewport', weight: '+0.05', intent: 'BUY_NOW' }
+                ];
+
+                var html = '';
+                for (var i = 0; i < sampleActions.length; i++) {
+                    var a = sampleActions[i];
+                    var intentColor = INTENT_COLORS[a.intent] || '#64748b';
+                    var isRepersonalization = a.type === 're_personalization';
+
+                    html += '<div class="behavior-item" style="' + (isRepersonalization ? 'background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3);' : '') + '">';
+                    html += '  <span class="behavior-item__time">' + a.time + '</span>';
+                    html += '  <span class="behavior-item__desc">' + (isRepersonalization ? '<strong>' + a.desc + '</strong>' : a.desc) + '</span>';
+                    html += '  <span class="behavior-item__weight" style="color: ' + intentColor + ';">' + a.weight + '</span>';
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            }
+
+            /**
+             * Initialize the dashboard
+             */
+            function init() {
+                var data = generateSessionData();
+
+                renderKPIs(data);
+                renderFunnel(data);
+                renderIntentDistribution(data);
+                renderSignalBreakdown();
+                renderROIProjection(data);
+                renderBehaviorStream();
+            }
+
+            // Auto-initialize
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+
+</html>

@@ -325,6 +325,11 @@
             IF.MultiPage.init();
         }
 
+        // Initialize context observer (real-time behavioral re-personalization)
+        if (IF.ContextObserver) {
+            IF.ContextObserver.init();
+        }
+
         // Load registries and run personalization
         loadRegistries(function (templates, assets) {
             // Initialize decision engine with registries
@@ -338,7 +343,9 @@
                 debug: IF.DebugOverlay && IF.DebugOverlay.isDebugEnabled(),
                 preview: IF.PreviewMode && IF.PreviewMode.isPreviewEnabled(),
                 ab_testing: IF.ABExplorer && IF.ABExplorer.isEnabled(),
-                multi_page: IF.MultiPage ? true : false
+                multi_page: IF.MultiPage ? true : false,
+                context_observer: IF.ContextObserver ? true : false,
+                signal_count: 7
             });
         });
     }
