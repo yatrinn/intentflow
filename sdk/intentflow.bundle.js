@@ -435,7 +435,7 @@
                 headline: 'Monitors Reimagined',
                 subheadline: 'Discover the next generation of displays.',
                 cta_text: 'Explore Collection →',
-                cta_link: '#collection',
+                cta_link: '#shop',
                 image: null,
                 badges: [],
                 reason: 'Fallback: asset registry not loaded'
@@ -2034,7 +2034,7 @@
                     headline: 'Find Your Perfect Match',
                     subheadline: 'Side-by-side specs, real benchmarks, and honest reviews to help you choose.',
                     cta_text: 'Compare Models →',
-                    cta_link: '#compare',
+                    cta_link: '#shop',
                     image: 'hero-comparison',
                     badges: ['top-rated', 'warranty', 'certified-4k']
                 },
@@ -2042,7 +2042,7 @@
                     headline: 'Built for What You Do',
                     subheadline: 'Whether you game, design, or code — we have the perfect monitor for your workflow.',
                     cta_text: 'Explore by Use Case →',
-                    cta_link: '#use-cases',
+                    cta_link: '#shop',
                     image: 'hero-design',
                     badges: ['top-rated', 'certified-4k', 'warranty']
                 },
@@ -2050,7 +2050,7 @@
                     headline: 'Premium Quality, Smart Prices',
                     subheadline: 'High-performance monitors starting at $149. Same quality, better value.',
                     cta_text: 'View Deals →',
-                    cta_link: '#deals',
+                    cta_link: '#shop',
                     image: 'hero-budget',
                     badges: ['price-match', 'free-shipping', 'warranty']
                 },
@@ -2058,7 +2058,7 @@
                     headline: 'Monitors Reimagined',
                     subheadline: 'Discover the next generation of displays. Stunning clarity meets unmatched performance.',
                     cta_text: 'Explore Collection →',
-                    cta_link: '#collection',
+                    cta_link: '#shop',
                     image: 'hero-default',
                     badges: ['best-seller', 'free-shipping', 'warranty']
                 }

@@ -61,9 +61,9 @@
         </a>
         <nav class="site-header__nav">
           <a href="#shop" class="nav-link">Shop</a>
-          <a href="#compare" class="nav-link">Compare</a>
-          <a href="#use-cases" class="nav-link">Use Cases</a>
-          <a href="#deals" class="nav-link">Deals</a>
+          <a href="#hero" class="nav-link" data-persona-trigger="COMPARE">Compare</a>
+          <a href="#hero" class="nav-link" data-persona-trigger="USE_CASE">Use Cases</a>
+          <a href="#shop" class="nav-link">Deals</a>
           <a href="#support" class="nav-link">Support</a>
         </nav>
         <div class="site-header__actions">
@@ -87,7 +87,7 @@
   </header>
 
   <!-- ═══════════════ HERO SECTION (IntentFlow Target) ═══════════════ -->
-  <section class="hero-section" data-intentflow-hero data-intentflow-assets="">
+  <section class="hero-section" id="hero" data-intentflow-hero data-intentflow-assets="">
     <!-- Default content (will be replaced by IntentFlow) -->
     <div class="intentflow-hero intentflow-hero--impact">
       <div class="intentflow-hero__image-container">
@@ -106,17 +106,14 @@
           <span class="intentflow-badge"><span class="intentflow-badge__icon">🛡️</span><span
               class="intentflow-badge__label">3-Year Warranty</span></span>
         </div>
-        <a class="intentflow-hero__cta" href="#collection" id="intentflow-cta">Explore Collection →</a>
+        <a class="intentflow-hero__cta" href="#shop" id="intentflow-cta">Explore Collection →</a>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════ FEATURED PRODUCTS ═══════════════ -->
   <section class="products-section" id="shop" data-section="shop">
-    <!-- Anchor for nav links -->
-    <span id="compare"></span>
-    <span id="use-cases"></span>
-    <span id="deals"></span>
+
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">Featured Monitors</h2>
@@ -231,6 +228,38 @@
       <div class="event-log__empty">Events will appear here...</div>
     </div>
   </div>
+
+  <!-- ═══════════════ SEARCH OVERLAY ═══════════════ -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-overlay__inner">
+      <div class="search-overlay__header">
+        <h3>Search Monitors</h3>
+        <button class="search-overlay__close" id="search-close">✕</button>
+      </div>
+      <input type="text" class="search-overlay__input" id="search-input" placeholder="Try: gaming, 4K, budget, USB-C..."
+        autofocus />
+      <div class="search-overlay__results" id="search-results"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CART DRAWER ═══════════════ -->
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer__header">
+      <h3>Shopping Cart</h3>
+      <button class="cart-drawer__close" id="cart-close">✕</button>
+    </div>
+    <div class="cart-drawer__body" id="cart-body">
+      <div class="cart-drawer__empty">Your cart is empty</div>
+    </div>
+    <div class="cart-drawer__footer" id="cart-footer" style="display: none;">
+      <div class="cart-drawer__total">
+        <span>Total</span>
+        <span id="cart-total">$0</span>
+      </div>
+      <button class="cart-drawer__checkout">Proceed to Checkout</button>
+    </div>
+  </div>
+  <div class="cart-drawer__backdrop" id="cart-backdrop"></div>
 
   <!-- ═══════════════ FOOTER ═══════════════ -->
   <footer class="site-footer">

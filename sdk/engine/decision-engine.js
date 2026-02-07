@@ -64,7 +64,7 @@
                 headline: 'Monitors Reimagined',
                 subheadline: 'Discover the next generation of displays.',
                 cta_text: 'Explore Collection →',
-                cta_link: '#collection',
+                cta_link: '#shop',
                 image: null,
                 badges: [],
                 reason: 'Fallback: asset registry not loaded'

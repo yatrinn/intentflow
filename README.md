@@ -72,7 +72,7 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 └──────────┬──────────────────────────────────────────────┘
            │
            ▼
-┌─────────────────────┐     ┌──────────────────────┐
+┌─────────────────────┐      ┌──────────────────────┐
 │   Intent Detector    │────▶│   Decision Engine    │
 │                      │     │                      │
 │ • UTM / Query Params │     │ • Template Selection │
@@ -82,14 +82,14 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 │ • Device Type        │     └──────────┬───────────┘
 │ • Time of Day        │                │
 │ • Screen Size        │   ┌────────────┤
-└─────────────────────┘   ▼            ▼
+└─────────────────────┘    ▼            ▼
 ┌──────────────────┐    ┌────────────────────────┐
-│ Template Registry │    │     Asset Library       │
-│  (templates.json) │    │     (assets.json)       │
-│                   │    │                         │
-│ • hero-impact     │    │ • 6 hero images         │
-│ • hero-comparison │    │ • 6 badge icons         │
-│ • hero-value      │    │ • 5 content variants    │
+│ Template Registry │   │     Asset Library      │
+│  (templates.json) │   │     (assets.json)      │
+│                   │   │                        │
+│ • hero-impact     │   │ • 6 hero images        │
+│ • hero-comparison │   │ • 6 badge icons        │
+│ • hero-value      │   │ • 5 content variants    │
 └──────────────────┘    └────────────────────────┘
               │                        │
               └────────────┬───────────┘
@@ -97,7 +97,7 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
               ┌────────────────────────┐
               │    DOM Injector        │
               │                        │
-              │ • Safe DOM mutation     │
+              │ • Safe DOM mutation    │
               │ • Smooth transitions   │
               │ • Fallback on error    │
               └────────────┬───────────┘
@@ -111,7 +111,7 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
               ▼
     ┌──────────────────┐     ┌──────────────────┐
     │Context Observer  │────▶│ Re-Personalize   │
-    │                  │     │ (live hero swap)  │
+    │                  │     │ (live hero swap) │
     │ • Scroll velocity│     └──────────────────┘
     │ • Click patterns │
     │ • Section views  │     ┌──────────────────┐
