@@ -10,16 +10,16 @@ Most websites show the same homepage to every visitor, regardless of why they ar
 
 ## How It Works
 
-```
-Visitor → Intent Detector (7 signals) → Decision Engine → DOM Injector → Personalized Hero
-                                                                              ↑
-                                                          Context Observer ────┘ (mid-session re-personalization)
-```
+**Core Pipeline:** Visitor → Intent Detector (7 signals) → Decision Engine → DOM Injector → Personalized Hero
+
+**Feedback Loop:** Context Observer watches real-time behavior → re-triggers Intent Detector → re-personalizes mid-session
 
 1. **Intent Detection** — Analyzes 7 signal types: URL/UTM params, referrer, behavior, persona toggle, device type, time of day, and screen size
 2. **Decision Engine** — Scores signals, selects the best template and content from a finite registry, outputs an explainable decision object with confidence and reasoning
 3. **DOM Injection** — Safely swaps hero content with smooth transitions; graceful fallback on error
 4. **Context Observer** — Watches real-time behavior (scroll velocity, clicks, hover dwell, section visibility) and re-personalizes mid-session
+5. **A/B Explorer** — Random variant split per intent with automatic winner selection
+6. **Multi-Page** — Page-aware personalization across homepage, product, category, and landing pages
 
 ## Technical Highlights
 

@@ -66,58 +66,52 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 
 ## 🏗️ Architecture
 
+```mermaid
+flowchart TD
+    A["🌐 Visitor Arrives"] --> B["🔍 Intent Detector"]
+
+    B -->|"7 signals"| C["🧠 Decision Engine"]
+    C --> D["📦 Template Registry"]
+    C --> E["🖼️ Asset Library"]
+    D --> F["💉 DOM Injector"]
+    E --> F
+
+    F -->|"personalized hero"| G["✅ Live Page"]
+
+    G --> H["📡 Context Observer"]
+    H -->|"behavior shift"| B
+
+    F --> I["📊 Event Tracker"]
+    I --> J["📈 Analytics Dashboard"]
+
+    C -.->|"A/B split"| K["⚗️ A/B Explorer"]
+    C -.->|"page type"| L["📄 Multi-Page"]
+
+    G --> M["🔧 Debug Overlay"]
+    G --> N["👁️ Preview Mode"]
+
+    style A fill:#6366f1,stroke:#4f46e5,color:#fff
+    style B fill:#3b82f6,stroke:#2563eb,color:#fff
+    style C fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style F fill:#10b981,stroke:#059669,color:#fff
+    style G fill:#f59e0b,stroke:#d97706,color:#fff
+    style H fill:#ec4899,stroke:#db2777,color:#fff
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Visitor Arrives                        │
-└──────────┬──────────────────────────────────────────────┘
-           │
-           ▼
-┌─────────────────────┐     ┌──────────────────────┐
-│   Intent Detector   │────▶│   Decision Engine    │
-│                     │     │                      │
-│ • UTM / Query Params│     │ • Template Selection │
-│ • Referrer Analysis │     │ • Image Selection    │
-│ • Behavior Signals  │     │ • CTA Optimization   │
-│ • Persona Override  │     │ • Explainable Output │
-│ • Device Type       │     └──────────┬───────────┘
-│ • Time of Day       │                │
-│ • Screen Size       │   ┌────────────┤
-└─────────────────────┘   ▼            ▼
-┌──────────────────┐    ┌────────────────────────┐
-│ Template Registry│    │     Asset Library      │
-│  (templates.json)│    │     (assets.json)      │
-│                  │    │                        │
-│ • hero-impact    │    │ • 6 hero images        │
-│ • hero-comparison│    │ • 6 badge icons        │
-│ • hero-value     │    │ • 5 content variants   │
-└──────────────────┘    └────────────────────────┘
-              │                        │
-              └────────────┬───────────┘
-                           ▼
-              ┌────────────────────────┐
-              │    DOM Injector        │
-              │                        │
-              │ • Safe DOM mutation    │
-              │ • Smooth transitions   │
-              │ • Fallback on error    │
-              └────────────┬───────────┘
-                           │
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-    ┌──────────────┐ ┌──────────┐ ┌──────────────┐
-    │Debug Overlay │ │Event Log │ │Preview Mode  │
-    └──────────────┘ └──────────┘ └──────────────┘
-              │
-              ▼
-    ┌──────────────────┐     ┌──────────────────┐
-    │Context Observer  │────▶│ Re-Personalize   │
-    │                  │     │ (live hero swap) │
-    │ • Scroll velocity│     └──────────────────┘
-    │ • Click patterns │
-    │ • Section views  │     ┌────────────────── ┐
-    │ • Hover dwell    │     │Analytics Dashboard│
-    └──────────────────┘     └────────────────── ┘
-```
+
+**Core Pipeline:** Intent Detector → Decision Engine → DOM Injector → Live Page
+
+| Module | File | Role |
+|---|---|---|
+| Intent Detector | `intent-detector.js` | 7-signal intent classification |
+| Decision Engine | `decision-engine.js` | Template + asset selection with explainability |
+| DOM Injector | `injector.js` | Safe hero swap with transitions + fallback |
+| Context Observer | `context-observer.js` | Mid-session re-personalization from behavior |
+| Event Tracker | `event-tracker.js` | Lightweight client-side analytics |
+| A/B Explorer | `ab-explorer.js` | Random variant split + auto-winner selection |
+| Multi-Page | `multi-page.js` | Page-aware personalization (product, category, landing) |
+| Debug Overlay | `debug-overlay.js` | "Why this variant?" developer panel |
+| Preview Mode | `preview-mode.js` | Site-owner variant preview |
+| Registry | `templates.json` + `assets.json` | 3 templates, 6 images, 5 content variants |
 
 ---
 
@@ -135,7 +129,7 @@ Every personalization decision outputs a structured JSON object:
   "headline": "Find Your Perfect Match",
   "subheadline": "Side-by-side specs, real benchmarks, and honest reviews.",
   "cta_text": "Compare Models →",
-  "cta_link": "#compare",
+  "cta_link": "#shop",
   "badges": [
     { "icon": "🏆", "label": "Top Rated" },
     { "icon": "🛡️", "label": "3-Year Warranty" },
