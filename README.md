@@ -64,9 +64,14 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 
 ---
 
-## 🏗️ Architecture
+## ⚡ How It Works
 
 > **Same URL → 5 different visitors → 5 personalized experiences**
+
+![IntentFlow Architecture](docs/architecture.png)
+
+<details>
+<summary>View Mermaid source (interactive on GitHub)</summary>
 
 ```mermaid
 flowchart LR
@@ -124,6 +129,8 @@ flowchart LR
     style D fill:#1e293b,stroke:#8b5cf6,color:#e2e8f0
     style RE fill:#ec4899,stroke:#db2777,color:#fff
 ```
+
+</details>
 
 **1 script tag · Zero dependencies · No backend · No cookies · Privacy-safe · Client-side only**
 
