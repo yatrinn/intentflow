@@ -2,6 +2,8 @@
 
 **Plug-and-play AI personalization for any website — in a single script tag.**
 
+> 🔗 **[Live Demo → yatrinn.github.io/intentflow](https://yatrinn.github.io/intentflow/)**
+
 IntentFlow detects visitor intent from context signals (UTM parameters, referrer, behavior) and instantly personalizes your hero section with the optimal template, image, headline, and CTA. No backend required. No complex setup. Just paste one snippet.
 
 ![IntentFlow Demo](demo/assets/hero-default.png)
@@ -230,12 +232,14 @@ Or use the **persona toggle bar** at the top of the demo page to switch intents 
 
 ```
 intentflow/
+├── index.html                   # Root redirect → demo/index.html (for GitHub Pages)
 ├── README.md                    # This file
 ├── LICENSE                      # MIT License
 ├── package.json                 # Project metadata
 ├── docs/
 │   ├── one-page-report.md       # 1-page structured report
-│   └── project-summary.txt      # 150-300 word pitch
+│   ├── project-summary.txt      # 150-300 word pitch
+│   └── architecture.png         # Architecture diagram
 ├── sdk/                         # Core SDK (the product)
 │   ├── intentflow.bundle.js     # ⚡ Single-file bundle (all-in-one)
 │   ├── intentflow.js            # Main entry point (modular)
