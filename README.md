@@ -66,6 +66,11 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 
 ## 🏗️ Architecture
 
+![IntentFlow Architecture](docs/architecture.png)
+
+<details>
+<summary>View interactive diagram (GitHub)</summary>
+
 ```mermaid
 flowchart TD
     A["🌐 Visitor Arrives"] --> B["🔍 Intent Detector"]
@@ -97,6 +102,8 @@ flowchart TD
     style G fill:#f59e0b,stroke:#d97706,color:#fff
     style H fill:#ec4899,stroke:#db2777,color:#fff
 ```
+
+</details>
 
 **Core Pipeline:** Intent Detector → Decision Engine → DOM Injector → Live Page
 
