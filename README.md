@@ -72,24 +72,24 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 └──────────┬──────────────────────────────────────────────┘
            │
            ▼
-┌─────────────────────┐      ┌──────────────────────┐
-│   Intent Detector    │────▶│   Decision Engine    │
-│                      │     │                      │
-│ • UTM / Query Params │     │ • Template Selection │
-│ • Referrer Analysis  │     │ • Image Selection    │
-│ • Behavior Signals   │     │ • CTA Optimization   │
-│ • Persona Override   │     │ • Explainable Output │
-│ • Device Type        │     └──────────┬───────────┘
-│ • Time of Day        │                │
-│ • Screen Size        │   ┌────────────┤
-└─────────────────────┘    ▼            ▼
+┌─────────────────────┐     ┌──────────────────────┐
+│   Intent Detector   │────▶│   Decision Engine    │
+│                     │     │                      │
+│ • UTM / Query Params│     │ • Template Selection │
+│ • Referrer Analysis │     │ • Image Selection    │
+│ • Behavior Signals  │     │ • CTA Optimization   │
+│ • Persona Override  │     │ • Explainable Output │
+│ • Device Type       │     └──────────┬───────────┘
+│ • Time of Day       │                │
+│ • Screen Size       │   ┌────────────┤
+└─────────────────────┘   ▼            ▼
 ┌──────────────────┐    ┌────────────────────────┐
-│ Template Registry │   │     Asset Library      │
-│  (templates.json) │   │     (assets.json)      │
-│                   │   │                        │
-│ • hero-impact     │   │ • 6 hero images        │
-│ • hero-comparison │   │ • 6 badge icons        │
-│ • hero-value      │   │ • 5 content variants    │
+│ Template Registry│    │     Asset Library      │
+│  (templates.json)│    │     (assets.json)      │
+│                  │    │                        │
+│ • hero-impact    │    │ • 6 hero images        │
+│ • hero-comparison│    │ • 6 badge icons        │
+│ • hero-value     │    │ • 5 content variants   │
 └──────────────────┘    └────────────────────────┘
               │                        │
               └────────────┬───────────┘
@@ -114,9 +114,9 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
     │                  │     │ (live hero swap) │
     │ • Scroll velocity│     └──────────────────┘
     │ • Click patterns │
-    │ • Section views  │     ┌──────────────────┐
+    │ • Section views  │     ┌────────────────── ┐
     │ • Hover dwell    │     │Analytics Dashboard│
-    └──────────────────┘     └──────────────────┘
+    └──────────────────┘     └────────────────── ┘
 ```
 
 ---
