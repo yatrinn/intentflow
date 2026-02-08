@@ -66,46 +66,69 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 
 ## 🏗️ Architecture
 
-![IntentFlow Architecture](docs/architecture.png)
-
-<details>
-<summary>View interactive diagram (GitHub)</summary>
+> **Same URL → 5 different visitors → 5 personalized experiences**
 
 ```mermaid
-flowchart TD
-    A["🌐 Visitor Arrives"] --> B["🔍 Intent Detector"]
+flowchart LR
+    subgraph VISITORS["🌐 Same URL — 5 Visitors"]
+        V1["🛒 Buyer\nutm=buy, email"]
+        V2["⚖️ Researcher\nutm=compare, Google"]
+        V3["🎯 Gamer\nq=gaming, YouTube"]
+        V4["💰 Budget\nq=cheap, deal site"]
+        V5["🏠 General\nno signals"]
+    end
 
-    B -->|"7 signals"| C["🧠 Decision Engine"]
-    C --> D["📦 Template Registry"]
-    C --> E["🖼️ Asset Library"]
-    D --> F["💉 DOM Injector"]
-    E --> F
+    subgraph ENGINE["⚡ IntentFlow AI Engine"]
+        direction TB
+        S["🔍 7 Signals Analyzed"]
+        D["🧠 Decision Engine\n< 100ms · Explainable"]
+        S --> D
+    end
 
-    F -->|"personalized hero"| G["✅ Live Page"]
+    subgraph HEROES["✨ 5 Unique Experiences"]
+        H1["🎮 Gaming Hero\nShop Now →"]
+        H2["📊 Comparison Hero\nCompare Models →"]
+        H3["🎨 Design Hero\nExplore Use Cases →"]
+        H4["💎 Value Hero\nView Deals →"]
+        H5["✨ Premium Hero\nExplore Collection →"]
+    end
 
-    G --> H["📡 Context Observer"]
-    H -->|"behavior shift"| B
+    V1 --> S
+    V2 --> S
+    V3 --> S
+    V4 --> S
+    V5 --> S
 
-    F --> I["📊 Event Tracker"]
-    I --> J["📈 Analytics Dashboard"]
+    D --> H1
+    D --> H2
+    D --> H3
+    D --> H4
+    D --> H5
 
-    C -.->|"A/B split"| K["⚗️ A/B Explorer"]
-    C -.->|"page type"| L["📄 Multi-Page"]
+    H1 & H2 & H3 & H4 & H5 -->|"behavior shifts"| RE["🔄 Re-Personalize"]
+    RE -->|"live hero swap"| S
 
-    G --> M["🔧 Debug Overlay"]
-    G --> N["👁️ Preview Mode"]
+    style V1 fill:#10b981,stroke:#059669,color:#fff
+    style V2 fill:#3b82f6,stroke:#2563eb,color:#fff
+    style V3 fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style V4 fill:#f59e0b,stroke:#d97706,color:#fff
+    style V5 fill:#64748b,stroke:#475569,color:#fff
 
-    style A fill:#6366f1,stroke:#4f46e5,color:#fff
-    style B fill:#3b82f6,stroke:#2563eb,color:#fff
-    style C fill:#8b5cf6,stroke:#7c3aed,color:#fff
-    style F fill:#10b981,stroke:#059669,color:#fff
-    style G fill:#f59e0b,stroke:#d97706,color:#fff
-    style H fill:#ec4899,stroke:#db2777,color:#fff
+    style H1 fill:#10b981,stroke:#059669,color:#fff
+    style H2 fill:#3b82f6,stroke:#2563eb,color:#fff
+    style H3 fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style H4 fill:#f59e0b,stroke:#d97706,color:#fff
+    style H5 fill:#64748b,stroke:#475569,color:#fff
+
+    style S fill:#1e293b,stroke:#3b82f6,color:#e2e8f0
+    style D fill:#1e293b,stroke:#8b5cf6,color:#e2e8f0
+    style RE fill:#ec4899,stroke:#db2777,color:#fff
 ```
 
-</details>
+**1 script tag · Zero dependencies · No backend · No cookies · Privacy-safe · Client-side only**
 
-**Core Pipeline:** Intent Detector → Decision Engine → DOM Injector → Live Page
+<details>
+<summary>📋 Module Reference</summary>
 
 | Module | File | Role |
 |---|---|---|
@@ -119,6 +142,8 @@ flowchart TD
 | Debug Overlay | `debug-overlay.js` | "Why this variant?" developer panel |
 | Preview Mode | `preview-mode.js` | Site-owner variant preview |
 | Registry | `templates.json` + `assets.json` | 3 templates, 6 images, 5 content variants |
+
+</details>
 
 ---
 
