@@ -70,7 +70,7 @@ IntentFlow auto-initializes on page load, detects visitor intent from context si
 
 > **Same URL → 5 different visitors → 5 personalized experiences**
 
-![IntentFlow Architecture](docs/architecture.png)
+![IntentFlow Architecture](docs/architecture.jpeg)
 
 <details>
 <summary>View Mermaid source (interactive on GitHub)</summary>
@@ -239,7 +239,7 @@ intentflow/
 ├── docs/
 │   ├── one-page-report.md       # 1-page structured report
 │   ├── project-summary.txt      # 150-300 word pitch
-│   └── architecture.png         # Architecture diagram
+│   └── architecture.jpeg        # Architecture diagram
 ├── sdk/                         # Core SDK (the product)
 │   ├── intentflow.bundle.js     # ⚡ Single-file bundle (all-in-one)
 │   ├── intentflow.js            # Main entry point (modular)

@@ -10,7 +10,7 @@ Most websites show the same homepage to every visitor, regardless of why they ar
 
 ## How It Works
 
-![IntentFlow Architecture](architecture.png)
+![IntentFlow Architecture](architecture.jpeg)
 
 **Core Pipeline:** Visitor → Intent Detector (7 signals) → Decision Engine → DOM Injector → Personalized Hero
 
